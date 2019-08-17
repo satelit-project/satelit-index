@@ -1,0 +1,8 @@
+---
+development:
+  dialect: postgres
+  database: stindex_dev
+  user: test
+  password: qwerty
+  host: 127.0.0.1
+  pool: 5
