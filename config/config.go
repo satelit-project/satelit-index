@@ -23,6 +23,7 @@ func init() {
 	}
 
 	readConfig("config/server.yml", &serverConfig)
+	readConfig("config/anidb.yml", &anidbConfig)
 }
 
 const envEnvironment = "SI_ENVIRONMENT"
@@ -30,6 +31,7 @@ const envEnvironment = "SI_ENVIRONMENT"
 var (
 	env          = "development"
 	serverConfig map[string]*Server
+	anidbConfig  map[string]*Anidb
 )
 
 type Server struct {
@@ -40,12 +42,20 @@ type Server struct {
 	LimitFiles        int    `yaml:"limit-files"`
 }
 
+type Anidb struct {
+	IndexURL string `yaml:"index-url"`
+}
+
 func Environment() string {
 	return env
 }
 
 func ServerConfig() *Server {
 	return serverConfig[env]
+}
+
+func AnidbConfig() *Anidb {
+	return anidbConfig[env]
 }
 
 func readConfig(path string, dst interface{}) {
