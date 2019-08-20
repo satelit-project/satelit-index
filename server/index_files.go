@@ -27,7 +27,7 @@ func NewIndexFilesService(dbConnection *pop.Connection, serveURL url.URL) IndexF
 
 func (s IndexFilesService) GetIndexFile(w http.ResponseWriter, r *http.Request) {
 	var indexFile models.IndexFile
-	err := pop.Q(s.dbConnection).Order("created_at desc").First(&indexFile)
+	err := pop.Q(s.dbConnection).Order("updated_at desc").First(&indexFile)
 
 	if err != nil {
 		writeError(err, w, http.StatusInternalServerError)

@@ -15,24 +15,20 @@ type JSONError struct {
 }
 
 type Server struct {
+	db     *pop.Connection
 	config config.Server
 }
 
-func NewServer(config config.Server) *Server {
-	return &Server{config: config}
+func NewServer(db *pop.Connection, config config.Server) *Server {
+	return &Server{db, config}
 }
 
 func (s *Server) Serve() {
-	dbConnection, err := pop.Connect(config.Environment())
-	if err != nil {
-		panic(err)
-	}
-
-	serveIndexFiles(s.config, dbConnection)
+	serveIndexFiles(s.config, s.db)
 	serveStaticFiles(s.config)
 
 	port := fmt.Sprintf(":%d", s.config.Port)
-	err = http.ListenAndServe(port, nil)
+	err := http.ListenAndServe(port, nil)
 	if err != nil {
 		panic(err)
 	}

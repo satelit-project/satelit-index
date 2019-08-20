@@ -15,11 +15,11 @@ import (
 
 type UpdateAnidbIndexTask struct {
 	db        *pop.Connection
-	anidbCfg  *config.Anidb
-	serverCfg *config.Server
+	anidbCfg  config.Anidb
+	serverCfg config.Server
 }
 
-func NewUpdateAnidbIndexTask(db *pop.Connection, anidbCfg *config.Anidb, serverCfg *config.Server) UpdateAnidbIndexTask {
+func NewUpdateAnidbIndexTask(db *pop.Connection, anidbCfg config.Anidb, serverCfg config.Server) UpdateAnidbIndexTask {
 	return UpdateAnidbIndexTask{db: db, anidbCfg: anidbCfg, serverCfg: serverCfg}
 }
 
@@ -62,7 +62,7 @@ func (t UpdateAnidbIndexTask) filePath(name string) string {
 }
 
 func createIndexIfNeeded(conn *pop.Connection, name string, hash string) (*models.IndexFile, error) {
-	count, err := conn.Q().Where("hash = %s", hash).Count(models.IndexFile{})
+	count, err := conn.Q().Where("hash = ?", hash).Count(models.IndexFile{})
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +93,7 @@ func createNewIndex(conn *pop.Connection, name string, hash string) (*models.Ind
 
 func updateExistingIndex(conn *pop.Connection, name string, hash string) error {
 	var indexFile models.IndexFile
-	err := conn.Q().Where("hash = %v", hash).First(&indexFile)
+	err := conn.Q().Where("hash = ?", hash).First(&indexFile)
 	if err != nil {
 		return err
 	}

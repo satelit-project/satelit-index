@@ -3,4 +3,3 @@ development:
   files-serve-path: "static"
   archives-serve-path: "archives"
   files-serve-url: "http://127.0.0.1:8080"
-  limit-files: 10
