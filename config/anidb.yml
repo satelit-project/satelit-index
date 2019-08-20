@@ -1,3 +1,4 @@
 development:
-  index-url: "http://ipv4.download.thinkbroadband.com/5MB.zip"
-#  index-url: "http://anidb.net/api/anime-titles.xml.gz"
+  update-interval: "@daily"
+  files-limit: 10
+  index-url: "http://anidb.net/api/anime-titles.xml.gz"

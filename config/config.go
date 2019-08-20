@@ -39,23 +39,24 @@ type Server struct {
 	FilesServePath    string `yaml:"files-serve-path"`
 	ArchivesServePath string `yaml:"archives-serve-path"`
 	FilesServeURL     string `yaml:"files-serve-url"`
-	LimitFiles        int    `yaml:"limit-files"`
 }
 
 type Anidb struct {
-	IndexURL string `yaml:"index-url"`
+	FilesLimit     int    `yaml:"files-limit"`
+	UpdateInterval string `yaml:"update-interval"`
+	IndexURL       string `yaml:"index-url"`
 }
 
 func Environment() string {
 	return env
 }
 
-func ServerConfig() *Server {
-	return serverConfig[env]
+func ServerConfig() Server {
+	return *serverConfig[env]
 }
 
-func AnidbConfig() *Anidb {
-	return anidbConfig[env]
+func AnidbConfig() Anidb {
+	return *anidbConfig[env]
 }
 
 func readConfig(path string, dst interface{}) {
