@@ -16,24 +16,67 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
+--
+-- Name: manage_anidb_index_files_limit(integer); Type: FUNCTION; Schema: public; Owner: test
+--
+
+CREATE FUNCTION public.manage_anidb_index_files_limit(_limit integer) RETURNS void
+    LANGUAGE plpgsql
+    AS $_$
+begin
+    -- creates a trigger function to cleanup most old rows
+    execute format($q$
+            create or replace function cleanup_anidb_index_files() returns trigger as
+            $qq$
+            begin
+                delete
+                from anidb_index_files
+                where id not in (
+                    select id
+                    from anidb_index_files
+                    order by updated_at desc
+                    limit %s
+                );
+
+                return null;
+            end;
+            $qq$ language plpgsql;
+        $q$, _limit);
+
+    -- creates an insert trigger to run cleanup function
+    execute $q$
+        drop trigger if exists start_cleanup_index_files on anidb_index_files;
+        create trigger start_cleanup_index_files
+            after insert
+            on anidb_index_files
+            for each statement
+        execute procedure cleanup_anidb_index_files();
+    $q$;
+
+end;
+$_$;
+
+
+ALTER FUNCTION public.manage_anidb_index_files_limit(_limit integer) OWNER TO test;
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
 
 --
--- Name: index_files; Type: TABLE; Schema: public; Owner: test
+-- Name: anidb_index_files; Type: TABLE; Schema: public; Owner: test
 --
 
-CREATE TABLE public.index_files (
+CREATE TABLE public.anidb_index_files (
     id uuid NOT NULL,
-    name text NOT NULL,
-    hash text NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    name text NOT NULL,
+    hash text NOT NULL
 );
 
 
-ALTER TABLE public.index_files OWNER TO test;
+ALTER TABLE public.anidb_index_files OWNER TO test;
 
 --
 -- Name: schema_migration; Type: TABLE; Schema: public; Owner: test
@@ -47,32 +90,32 @@ CREATE TABLE public.schema_migration (
 ALTER TABLE public.schema_migration OWNER TO test;
 
 --
--- Name: index_files index_files_pk; Type: CONSTRAINT; Schema: public; Owner: test
+-- Name: anidb_index_files anidb_index_files_pk; Type: CONSTRAINT; Schema: public; Owner: test
 --
 
-ALTER TABLE ONLY public.index_files
-    ADD CONSTRAINT index_files_pk PRIMARY KEY (id);
-
-
---
--- Name: index_files_hash_uindex; Type: INDEX; Schema: public; Owner: test
---
-
-CREATE UNIQUE INDEX index_files_hash_uindex ON public.index_files USING btree (hash);
+ALTER TABLE ONLY public.anidb_index_files
+    ADD CONSTRAINT anidb_index_files_pk PRIMARY KEY (id);
 
 
 --
--- Name: index_files_id_uindex; Type: INDEX; Schema: public; Owner: test
+-- Name: anidb_index_files_hash_uindex; Type: INDEX; Schema: public; Owner: test
 --
 
-CREATE UNIQUE INDEX index_files_id_uindex ON public.index_files USING btree (id);
+CREATE UNIQUE INDEX anidb_index_files_hash_uindex ON public.anidb_index_files USING btree (hash);
 
 
 --
--- Name: index_files_name_uindex; Type: INDEX; Schema: public; Owner: test
+-- Name: anidb_index_files_id_uindex; Type: INDEX; Schema: public; Owner: test
 --
 
-CREATE UNIQUE INDEX index_files_name_uindex ON public.index_files USING btree (name);
+CREATE UNIQUE INDEX anidb_index_files_id_uindex ON public.anidb_index_files USING btree (id);
+
+
+--
+-- Name: anidb_index_files_name_uindex; Type: INDEX; Schema: public; Owner: test
+--
+
+CREATE UNIQUE INDEX anidb_index_files_name_uindex ON public.anidb_index_files USING btree (name);
 
 
 --

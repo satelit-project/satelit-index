@@ -23,7 +23,7 @@ func NewUpdateAnidbIndexTask(db *pop.Connection, anidbCfg config.Anidb, serverCf
 	return UpdateAnidbIndexTask{db: db, anidbCfg: anidbCfg, serverCfg: serverCfg}
 }
 
-func (t UpdateAnidbIndexTask) UpdateIndex() (*models.IndexFile, error) {
+func (t UpdateAnidbIndexTask) UpdateIndex() (*models.AnidbIndexFile, error) {
 	name, err := downloadIndexFile(t.anidbCfg.IndexURL, t.saveDirectory())
 	if err != nil {
 		return nil, err
@@ -37,8 +37,8 @@ func (t UpdateAnidbIndexTask) UpdateIndex() (*models.IndexFile, error) {
 	return t.addUpdatedIndex(name, hash)
 }
 
-func (t UpdateAnidbIndexTask) addUpdatedIndex(name string, hash string) (*models.IndexFile, error) {
-	var indexFile *models.IndexFile
+func (t UpdateAnidbIndexTask) addUpdatedIndex(name string, hash string) (*models.AnidbIndexFile, error) {
+	var indexFile *models.AnidbIndexFile
 	var err error
 
 	err = t.db.Transaction(func(conn *pop.Connection) error {
@@ -61,8 +61,8 @@ func (t UpdateAnidbIndexTask) filePath(name string) string {
 	return pathutils.Join(t.saveDirectory(), name)
 }
 
-func createIndexIfNeeded(conn *pop.Connection, name string, hash string) (*models.IndexFile, error) {
-	count, err := conn.Q().Where("hash = ?", hash).Count(models.IndexFile{})
+func createIndexIfNeeded(conn *pop.Connection, name string, hash string) (*models.AnidbIndexFile, error) {
+	count, err := conn.Q().Where("hash = ?", hash).Count(models.AnidbIndexFile{})
 	if err != nil {
 		return nil, err
 	}
@@ -75,8 +75,8 @@ func createIndexIfNeeded(conn *pop.Connection, name string, hash string) (*model
 	return nil, err
 }
 
-func createNewIndex(conn *pop.Connection, name string, hash string) (*models.IndexFile, error) {
-	indexFile := models.IndexFile{Name: name, Hash: hash}
+func createNewIndex(conn *pop.Connection, name string, hash string) (*models.AnidbIndexFile, error) {
+	indexFile := models.AnidbIndexFile{Name: name, Hash: hash}
 	id, err := uuid.NewV4()
 	if err != nil {
 		return nil, err
@@ -92,7 +92,7 @@ func createNewIndex(conn *pop.Connection, name string, hash string) (*models.Ind
 }
 
 func updateExistingIndex(conn *pop.Connection, name string, hash string) error {
-	var indexFile models.IndexFile
+	var indexFile models.AnidbIndexFile
 	err := conn.Q().Where("hash = ?", hash).First(&indexFile)
 	if err != nil {
 		return err

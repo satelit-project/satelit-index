@@ -42,9 +42,11 @@ type Server struct {
 }
 
 type Anidb struct {
-	FilesLimit     int    `yaml:"files-limit"`
-	UpdateInterval string `yaml:"update-interval"`
-	IndexURL       string `yaml:"index-url"`
+	RunTasksOnStartup bool   `yaml:"run-tasks-on-startup"`
+	FilesLimit        int    `yaml:"files-limit"`
+	IndexURL          string `yaml:"index-url"`
+	UpdateTime        string `yaml:"update-time"`
+	CleanupTime       string `yaml:"cleanup-time"`
 }
 
 func Environment() string {

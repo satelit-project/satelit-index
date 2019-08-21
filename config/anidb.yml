@@ -1,4 +1,6 @@
 development:
-  update-interval: "@daily"
-  files-limit: 10
+  run-tasks-on-startup: true
   index-url: "http://anidb.net/api/anime-titles.xml.gz"
+  files-limit: 10
+  update-time: "@daily"
+  cleanup-time: "0 9 * * *"
