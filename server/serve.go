@@ -6,8 +6,9 @@ import (
 	"net/url"
 	"path"
 
+	"satelit-project/satelit-index/config"
+
 	"github.com/gobuffalo/pop"
-	"github.com/satelit-project/satelit-index/config"
 )
 
 type JSONError struct {

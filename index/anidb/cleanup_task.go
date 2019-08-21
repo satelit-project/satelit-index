@@ -5,9 +5,10 @@ import (
 	"os"
 	"path"
 
+	"satelit-project/satelit-index/config"
+	"satelit-project/satelit-index/models"
+
 	"github.com/gobuffalo/pop"
-	"github.com/satelit-project/satelit-index/config"
-	"github.com/satelit-project/satelit-index/models"
 )
 
 type CleanupAnidbIndexTask struct {

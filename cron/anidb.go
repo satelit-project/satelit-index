@@ -1,8 +1,9 @@
 package cron
 
 import (
+	"satelit-project/satelit-index/config"
+
 	"github.com/robfig/cron/v3"
-	"github.com/satelit-project/satelit-index/config"
 )
 
 type AnidbScheduler struct {

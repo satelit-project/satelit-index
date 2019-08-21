@@ -1,8 +1,9 @@
 package db
 
 import (
+	"satelit-project/satelit-index/config"
+
 	"github.com/gobuffalo/pop"
-	"github.com/satelit-project/satelit-index/config"
 )
 
 func SetupAnidbTables(db *pop.Connection, cfg config.Anidb) error {
