@@ -31,9 +31,7 @@ func (t CleanupAnidbIndexTask) Cleanup() error {
 
 func (t CleanupAnidbIndexTask) indexFilesToRetain() ([]models.AnidbIndexFile, error) {
 	var indexFiles []models.AnidbIndexFile
-	filesLimit := t.anidbCfg.FilesLimit
-
-	err := t.db.Q().Order("updated_at desc").Limit(filesLimit).All(&indexFiles)
+	err := t.db.Q().All(&indexFiles)
 	if err != nil {
 		return nil, err
 	}
