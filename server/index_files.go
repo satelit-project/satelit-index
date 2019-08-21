@@ -17,7 +17,7 @@ type IndexFilesService struct {
 }
 
 type indexFileWithURL struct {
-	models.IndexFile
+	models.AnidbIndexFile
 	IndexURL string `json:"url"`
 }
 
@@ -26,7 +26,7 @@ func NewIndexFilesService(dbConnection *pop.Connection, serveURL url.URL) IndexF
 }
 
 func (s IndexFilesService) GetIndexFile(w http.ResponseWriter, r *http.Request) {
-	var indexFile models.IndexFile
+	var indexFile models.AnidbIndexFile
 	err := pop.Q(s.dbConnection).Order("updated_at desc").First(&indexFile)
 
 	if err != nil {

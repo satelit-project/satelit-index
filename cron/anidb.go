@@ -15,18 +15,32 @@ func NewAnidbScheduler(cron *cron.Cron, config config.Anidb) AnidbScheduler {
 }
 
 func (s AnidbScheduler) SetUpdateIndexTask(task Task) {
-	schedule, err := cron.ParseStandard(s.config.UpdateInterval)
-	if err != nil {
-		panic(err)
-	}
+	s.schedule(task, s.config.UpdateTime)
+}
 
-	s.cron.Schedule(schedule, task)
+func (s AnidbScheduler) SetCleanupIndexesTask(task Task) {
+	s.schedule(task, s.config.CleanupTime)
 }
 
 func (s AnidbScheduler) StartJobs() {
+	if s.config.RunTasksOnStartup {
+		for _, e := range s.cron.Entries() {
+			go e.Job.Run()
+		}
+	}
+
 	s.cron.Start()
 }
 
 func (s AnidbScheduler) StopJobs() {
 	s.cron.Stop()
+}
+
+func (s AnidbScheduler) schedule(task Task, time string) {
+	schedule, err := cron.ParseStandard(time)
+	if err != nil {
+		panic(err)
+	}
+
+	s.cron.Schedule(schedule, task)
 }

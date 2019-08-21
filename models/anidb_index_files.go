@@ -9,44 +9,45 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-// IndexFile model struct
-type IndexFile struct {
+// AnidbIndexFile model struct
+type AnidbIndexFile struct {
 	ID        uuid.UUID `json:"id" db:"id"`
-	Name      string    `json:"name" db:"name"`
-	Hash      string    `json:"hash" db:"hash"`
 	CreatedAt time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
+
+	Name string `json:"name" db:"name"`
+	Hash string `json:"hash" db:"hash"`
 }
 
 // String is not required by pop and may be deleted
-func (i IndexFile) String() string {
-	ji, _ := json.Marshal(i)
-	return string(ji)
+func (a AnidbIndexFile) String() string {
+	ja, _ := json.Marshal(a)
+	return string(ja)
 }
 
-// IndexFiles is not required by pop and may be deleted
-type IndexFiles []IndexFile
+// AnidbIndexFiles is not required by pop and may be deleted
+type AnidbIndexFiles []AnidbIndexFile
 
 // String is not required by pop and may be deleted
-func (i IndexFiles) String() string {
-	ji, _ := json.Marshal(i)
-	return string(ji)
+func (a AnidbIndexFiles) String() string {
+	ja, _ := json.Marshal(a)
+	return string(ja)
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
-func (i *IndexFile) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (a *AnidbIndexFile) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
 
 // ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
 // This method is not required and may be deleted.
-func (i *IndexFile) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
+func (a *AnidbIndexFile) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
 
 // ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
 // This method is not required and may be deleted.
-func (i *IndexFile) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
+func (a *AnidbIndexFile) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }

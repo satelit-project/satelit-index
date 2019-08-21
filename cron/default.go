@@ -1,6 +1,8 @@
 package cron
 
 import (
+	"fmt"
+
 	"github.com/gobuffalo/pop"
 	_cron "github.com/robfig/cron/v3"
 	"github.com/satelit-project/satelit-index/config"
@@ -12,9 +14,8 @@ func DefaultAnidbScheduler(db *pop.Connection, serverCfg config.Server, anidbCfg
 	cron := _cron.New()
 	scheduler := NewAnidbScheduler(cron, anidbCfg)
 
-	updateIndex := updateIndexTask(db, serverCfg, anidbCfg)
-	go updateIndex()
-	scheduler.SetUpdateIndexTask(updateIndex)
+	scheduler.SetUpdateIndexTask(updateIndexTask(db, serverCfg, anidbCfg))
+	scheduler.SetCleanupIndexesTask(cleanupIndexesTask(db, serverCfg, anidbCfg))
 
 	return scheduler
 }
@@ -24,7 +25,17 @@ func updateIndexTask(db *pop.Connection, serverCfg config.Server, anidbCfg confi
 		task := anidb.NewUpdateAnidbIndexTask(db, anidbCfg, serverCfg)
 		_, err := task.UpdateIndex()
 		if err != nil {
-			println(err)
+			fmt.Println(err)
+		}
+	}
+}
+
+func cleanupIndexesTask(db *pop.Connection, serverCfg config.Server, anidbCfg config.Anidb) Task {
+	return func() {
+		task := anidb.NewCleanupAnidbIndexTask(db, anidbCfg, serverCfg)
+		err := task.Cleanup()
+		if err != nil {
+			fmt.Println(err)
 		}
 	}
 }
