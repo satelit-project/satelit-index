@@ -1,11 +1,12 @@
 package main
 
 import (
+	"satelit-project/satelit-index/config"
+	"satelit-project/satelit-index/cron"
+	dbcfg "satelit-project/satelit-index/db"
+	"satelit-project/satelit-index/server"
+
 	"github.com/gobuffalo/pop"
-	"github.com/satelit-project/satelit-index/config"
-	"github.com/satelit-project/satelit-index/cron"
-	dbcfg "github.com/satelit-project/satelit-index/db"
-	"github.com/satelit-project/satelit-index/server"
 )
 
 func main() {

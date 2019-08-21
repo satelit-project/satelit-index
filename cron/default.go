@@ -3,10 +3,11 @@ package cron
 import (
 	"fmt"
 
+	"satelit-project/satelit-index/config"
+	"satelit-project/satelit-index/index/anidb"
+
 	"github.com/gobuffalo/pop"
 	_cron "github.com/robfig/cron/v3"
-	"github.com/satelit-project/satelit-index/config"
-	"github.com/satelit-project/satelit-index/index/anidb"
 )
 
 func DefaultAnidbScheduler(db *pop.Connection, serverCfg config.Server, anidbCfg config.Anidb) AnidbScheduler {

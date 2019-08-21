@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/satelit-project/satelit-index/config"
+	"satelit-project/satelit-index/config"
 )
 
 type dotFileHidingFileSystem struct {

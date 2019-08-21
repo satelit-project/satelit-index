@@ -4,10 +4,12 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"strings"
+
+	"satelit-project/satelit-index/config"
+	"satelit-project/satelit-index/models"
 
 	"github.com/gobuffalo/pop"
-	"github.com/satelit-project/satelit-index/config"
-	"github.com/satelit-project/satelit-index/models"
 )
 
 type CleanupAnidbIndexTask struct {
@@ -51,7 +53,11 @@ func (t CleanupAnidbIndexTask) cleanup(filesToRetain []models.AnidbIndexFile) er
 	}
 
 	for _, file := range existingFiles {
-		if expectedFiles[file.Name()] {
+		if file.IsDir() || expectedFiles[file.Name()] {
+			continue
+		}
+
+		if strings.HasPrefix(file.Name(), ".") {
 			continue
 		}
 

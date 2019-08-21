@@ -7,8 +7,9 @@ import (
 	"net/url"
 	"path"
 
+	"satelit-project/satelit-index/models"
+
 	"github.com/gobuffalo/pop"
-	"github.com/satelit-project/satelit-index/models"
 )
 
 type IndexFilesService struct {
