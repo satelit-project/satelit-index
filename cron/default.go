@@ -21,7 +21,7 @@ func DefaultAnidbScheduler(db *pop.Connection, serverCfg config.Server, anidbCfg
 
 func updateIndexTask(db *pop.Connection, serverCfg config.Server, anidbCfg config.Anidb) Task {
 	return func() {
-		log := logging.DefaultLogger()
+		log := logging.DefaultLogger().With("anidb-update")
 		log.Info("Starting AniDB index update")
 
 		task := anidb.NewUpdateAnidbIndexTask(db, anidbCfg, serverCfg)
@@ -34,7 +34,7 @@ func updateIndexTask(db *pop.Connection, serverCfg config.Server, anidbCfg confi
 
 func cleanupIndexesTask(db *pop.Connection, serverCfg config.Server, anidbCfg config.Anidb) Task {
 	return func() {
-		log := logging.DefaultLogger()
+		log := logging.DefaultLogger().With("anidb-cleanup")
 		log.Info("Starting AniDB index cleanup")
 
 		task := anidb.NewCleanupAnidbIndexTask(db, anidbCfg, serverCfg)
