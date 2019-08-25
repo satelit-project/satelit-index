@@ -42,7 +42,8 @@ func (t CleanupAnidbIndexTask) indexFilesToRetain() ([]models.AnidbIndexFile, er
 }
 
 func (t CleanupAnidbIndexTask) cleanup(filesToRetain []models.AnidbIndexFile) error {
-	existingFiles, err := ioutil.ReadDir(t.archivesPath())
+	root := t.archivesPath()
+	existingFiles, err := ioutil.ReadDir(root)
 	if err != nil {
 		return err
 	}
@@ -61,7 +62,7 @@ func (t CleanupAnidbIndexTask) cleanup(filesToRetain []models.AnidbIndexFile) er
 			continue
 		}
 
-		err = os.Remove(file.Name())
+		err = os.Remove(path.Join(root, file.Name()))
 		if err != nil {
 			return err
 		}

@@ -1,17 +1,15 @@
 package cron
 
 import (
-	"fmt"
-
 	"satelit-project/satelit-index/config"
 	"satelit-project/satelit-index/index/anidb"
+	"satelit-project/satelit-index/logging"
 
 	"github.com/gobuffalo/pop"
 	_cron "github.com/robfig/cron/v3"
 )
 
 func DefaultAnidbScheduler(db *pop.Connection, serverCfg config.Server, anidbCfg config.Anidb) AnidbScheduler {
-	// TODO: logger
 	cron := _cron.New()
 	scheduler := NewAnidbScheduler(cron, anidbCfg)
 
@@ -23,20 +21,26 @@ func DefaultAnidbScheduler(db *pop.Connection, serverCfg config.Server, anidbCfg
 
 func updateIndexTask(db *pop.Connection, serverCfg config.Server, anidbCfg config.Anidb) Task {
 	return func() {
+		log := logging.DefaultLogger()
+		log.Info("Starting AniDB index update")
+
 		task := anidb.NewUpdateAnidbIndexTask(db, anidbCfg, serverCfg)
 		_, err := task.UpdateIndex()
 		if err != nil {
-			fmt.Println(err)
+			log.Error("AniDB index update failed: %v", err)
 		}
 	}
 }
 
 func cleanupIndexesTask(db *pop.Connection, serverCfg config.Server, anidbCfg config.Anidb) Task {
 	return func() {
+		log := logging.DefaultLogger()
+		log.Info("Starting AniDB index cleanup")
+
 		task := anidb.NewCleanupAnidbIndexTask(db, anidbCfg, serverCfg)
 		err := task.Cleanup()
 		if err != nil {
-			fmt.Println(err)
+			log.Error(err)
 		}
 	}
 }
