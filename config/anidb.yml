@@ -1,5 +1,5 @@
 development:
-  run-tasks-on-startup: true
+  run-tasks-on-startup: false
   index-url: "http://anidb.net/api/anime-titles.xml.gz"
   files-limit: 10
   update-time: "@daily"
