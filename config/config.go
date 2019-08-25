@@ -16,22 +16,25 @@ import (
 )
 
 func init() {
-	if len(envy.Get(envEnvironment, "")) > 0 {
-		var err error
-		env, err = envy.MustGet(envEnvironment)
-		assertNoError(err)
-	}
-
+	readEnvironment()
 	readConfig("config/server.yml", &serverConfig)
 	readConfig("config/anidb.yml", &anidbConfig)
 }
 
+type Environment string
+
 const envEnvironment = "SI_ENVIRONMENT"
 
+const (
+	DevelopmentEnvironment Environment = "development"
+	TestEnvironment        Environment = "test"
+	ProductionEnvironment  Environment = "production"
+)
+
 var (
-	env          = "development"
-	serverConfig map[string]*Server
-	anidbConfig  map[string]*Anidb
+	env          = DevelopmentEnvironment
+	serverConfig map[Environment]*Server
+	anidbConfig  map[Environment]*Anidb
 )
 
 type Server struct {
@@ -49,7 +52,7 @@ type Anidb struct {
 	CleanupTime       string `yaml:"cleanup-time"`
 }
 
-func Environment() string {
+func CurrentEnvironment() Environment {
 	return env
 }
 
@@ -59,6 +62,26 @@ func ServerConfig() Server {
 
 func AnidbConfig() Anidb {
 	return *anidbConfig[env]
+}
+
+func readEnvironment() {
+	if len(envy.Get(envEnvironment, "")) == 0 {
+		return
+	}
+
+	rawEnv, err := envy.MustGet(envEnvironment)
+	assertNoError(err)
+
+	switch Environment(rawEnv) {
+	case DevelopmentEnvironment:
+		env = DevelopmentEnvironment
+	case TestEnvironment:
+		env = TestEnvironment
+	case ProductionEnvironment:
+		env = ProductionEnvironment
+	default:
+		panic(fmt.Sprintf("unknown config env: %v", rawEnv))
+	}
 }
 
 func readConfig(path string, dst interface{}) {
@@ -104,7 +127,7 @@ func assertConfigEnv(config interface{}) {
 	}
 
 	for _, key := range r.Elem().MapKeys() {
-		if key.String() == env {
+		if key.String() == string(env) {
 			return
 		}
 	}
