@@ -15,4 +15,4 @@
 .idea
 
 # user
-static/archives/*.xml.gz
+.mount
