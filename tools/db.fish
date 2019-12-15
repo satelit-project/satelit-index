@@ -2,6 +2,7 @@
 
 set REPO_DIR (git rev-parse --show-toplevel)
 set CONTAINER_NAME pg-satelit-index
+set DB_NAME postgres
 set DB_PASSWD postgres
 set DB_PORT 5432
 
@@ -53,7 +54,7 @@ function start_db -a vol_path
     postgres; or exit $status
 
   echo "DB started in container: $CONTAINER_NAME" >&2
-  echo "DB URL: postgresql://postgres:$DB_PASSWD@localhost:$DB_PORT"
+  echo "DB URL: postgresql://postgres:$DB_PASSWD@localhost:$DB_PORT/$DB_NAME"
 end
 
 # Attaches to db in container and starts `psql`
