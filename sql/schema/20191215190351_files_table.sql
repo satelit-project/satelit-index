@@ -5,15 +5,15 @@
 */
 create table anidb_index_files
 (
-    id         uuid                      not null,
-    created_at timestamptz default now() not null,
-    updated_at timestamptz default now() not null,
+    id         uuid        default uuid_generate_v4() not null,
+    created_at timestamptz default now()              not null,
+    updated_at timestamptz default now()              not null,
 
     -- name of the stored index file
-    name       text                      not null,
+    name       text                                   not null,
 
     -- it's hash
-    hash       text                      not null
+    hash       text                                   not null
 );
 
 -- hash should be unique
@@ -23,10 +23,6 @@ create unique index anidb_index_files_hash_uindex
 -- as well as id
 create unique index anidb_index_files_id_uindex
     on anidb_index_files (id);
-
--- as well as the stored file name
-create unique index anidb_index_files_name_uindex
-    on anidb_index_files (name);
 
 -- make `id` a primary key
 alter table anidb_index_files
