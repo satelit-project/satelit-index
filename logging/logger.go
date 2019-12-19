@@ -2,7 +2,6 @@ package logging
 
 import "go.uber.org/zap"
 
-
 func init() {
 	logger, err := zap.NewDevelopment()
 	if err != nil {
@@ -54,7 +53,7 @@ func (l *Logger) Infof(template string, args ...interface{}) {
 
 // Logs formatted warning message.
 func (l *Logger) Warnf(template string, args ...interface{}) {
-	l.safeExec(func () {
+	l.safeExec(func() {
 		l.inner.Warnf(template, args...)
 	})
 }
