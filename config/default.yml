@@ -1,5 +1,6 @@
 serving:
   port: 8080
-  serve-path: "static/anidb"
+  serve-path: "static"
 anidb:
+  dir: "anidb"
   index-url: "http://anidb.net/api/anime-titles.xml.gz"

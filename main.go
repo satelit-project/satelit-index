@@ -20,11 +20,7 @@ func main() {
 		log.Fatalf("failed to read app configuration: %v", err)
 	}
 
-	srv := server.IndexServer{
-		Cfg: cfg,
-		Log: log,
-	}
-
+	srv := server.New(cfg, log)
 	if err = srv.Run(); err != nil {
 		log.Fatalf("error while serving files: %v", err)
 	}
