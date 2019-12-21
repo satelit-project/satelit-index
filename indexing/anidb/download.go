@@ -9,14 +9,14 @@ import (
 	"path/filepath"
 
 	"shitty.moe/satelit-project/satelit-index/config"
-	"shitty.moe/satelit-project/satelit-index/logging"
 )
 
+// AniDB database dump downloader.
 type IndexDownloader struct {
-	config config.Config
-	log    *logging.Logger
+	config config.AniDB
 }
 
+// Downloads database dump to a directory with provided path.
 func (d IndexDownloader) Download(path string) (string, error) {
 	filePath, err := d.downloadIndex()
 	if err != nil {
@@ -26,13 +26,16 @@ func (d IndexDownloader) Download(path string) (string, error) {
 	return d.moveIndex(filePath, path)
 }
 
+// Downloads database index to temporary directory.
+//
+// Path to the database index will be returned if it was successfully downloaded.
 func (d IndexDownloader) downloadIndex() (string, error) {
 	tmp, err := ioutil.TempFile("", "anidb_index")
 	if err != nil {
 		return "", err
 	}
 
-	resp, err := http.Get(d.config.AniDB.IndexURL)
+	resp, err := http.Get(d.config.IndexURL)
 	if err != nil {
 		return "", err
 	}
@@ -50,12 +53,15 @@ func (d IndexDownloader) downloadIndex() (string, error) {
 	return filepath.Abs(filepath.Dir(tmp.Name()))
 }
 
+// Moves database index from indexPath to a destDir directory. The file will be
+// renamed to it's MD5 hash.
 func (d IndexDownloader) moveIndex(indexPath, destDir string) (string, error) {
 	destPath := filepath.Join(destDir, filepath.Base(indexPath))
 	err := os.Rename(indexPath, destPath)
 	return destPath, err
 }
 
+// Returns MD5 hash string for a file at specified path.
 func (d IndexDownloader) fileHash(path string) (string, error) {
 	f, err := os.Open(path)
 	if err != nil {
