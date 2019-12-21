@@ -7,13 +7,11 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-
-	"shitty.moe/satelit-project/satelit-index/config"
 )
 
 // AniDB database dump downloader.
 type IndexDownloader struct {
-	config config.AniDB
+	indexURL string
 }
 
 // Downloads database dump to a directory with provided path.
@@ -35,7 +33,7 @@ func (d IndexDownloader) downloadIndex() (string, error) {
 		return "", err
 	}
 
-	resp, err := http.Get(d.config.IndexURL)
+	resp, err := http.Get(d.indexURL)
 	if err != nil {
 		return "", err
 	}

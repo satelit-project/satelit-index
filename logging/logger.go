@@ -1,15 +1,9 @@
 package logging
 
-import "go.uber.org/zap"
-
-func init() {
-	logger, err := zap.NewDevelopment()
-	if err != nil {
-		panic(err)
-	}
-
-	defaultLogger = Logger{logger.Sugar()}
-}
+import (
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+)
 
 // A logger which writes given message to stderr.
 //
@@ -18,23 +12,41 @@ type Logger struct {
 	inner *zap.SugaredLogger
 }
 
-// Global logger instance
-var defaultLogger Logger
+func NewLogger() (*Logger, error) {
+	logger, err := zap.NewDevelopment()
+	if err != nil {
+		return nil, err
+	}
 
-// Returns default logger suitable for usage
-func DefaultLogger() *Logger {
-	return &defaultLogger
+	minLevel := int8(zapcore.InfoLevel)
+	maxLevel := int8(zapcore.FatalLevel)
+	for i := minLevel; i <= maxLevel; i++ {
+		if _, err := zap.RedirectStdLogAt(logger, zapcore.Level(i)); err != nil {
+			return nil, err
+		}
+	}
+
+	return &Logger{logger.Sugar()}, nil
 }
 
 // Adds a variadic number of fields to the logging context. The first value
 // will become a key and the second one will become a value.
 func (l *Logger) With(args ...interface{}) *Logger {
-	if l == nil || l.inner == nil {
+	if !l.canSafeExec() {
 		return nil
 	}
 
 	inner := l.inner.With(args...)
 	return &Logger{inner}
+}
+
+// Flushes all bufferred log entries.
+func (l *Logger) Sync() error {
+	if !l.canSafeExec() {
+		return nil
+	}
+
+	return l.inner.Sync()
 }
 
 // Logs formatted debug message.
@@ -65,9 +77,19 @@ func (l *Logger) Errorf(template string, args ...interface{}) {
 	})
 }
 
+func (l *Logger) Fatalf(template string, args ...interface{}) {
+	l.safeExec(func() {
+		l.inner.Fatalf(template, args...)
+	})
+}
+
+func (l *Logger) canSafeExec() bool {
+	return l != nil && l.inner != nil
+}
+
 // Executes given closure only if receiver and inner loggers are not nil.
 func (l *Logger) safeExec(f func()) {
-	if l != nil && l.inner != nil {
+	if l.canSafeExec() {
 		f()
 	}
 }

@@ -13,26 +13,26 @@ type IndexUpdateTask struct {
 	downloader   IndexDownloader
 	downloadPath string
 	db           *db.Queries
-	logger       *logging.Logger
+	log          *logging.Logger
 }
 
 // Downloads new database index and makes it available to external services.
 func (t IndexUpdateTask) Run() error {
-	t.logger.Infof("downloading new index to: %v", t.downloadPath)
+	t.log.Infof("downloading new index to: %v", t.downloadPath)
 	idxPath, err := t.downloader.Download(t.downloadPath)
 	if err != nil {
-		t.logger.Errorf("index download failed: %v, err")
+		t.log.Errorf("index download failed: %v, err")
 		return err
 	}
 
-	t.logger.Infof("trying to save new index to db: %v", idxPath)
+	t.log.Infof("trying to save new index to db: %v", idxPath)
 	saved, err := t.updateDB(idxPath)
 	if err != nil {
-		t.logger.Errorf("failed to save new index: %v", err)
+		t.log.Errorf("failed to save new index: %v", err)
 		return err
 	}
 
-	t.logger.Infof("new index file saved, db updated: %v", saved)
+	t.log.Infof("new index file saved, db updated: %v", saved)
 	return nil
 }
 
