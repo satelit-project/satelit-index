@@ -6,13 +6,7 @@ set DB_NAME postgres
 set DB_PASSWD postgres
 set DB_PORT 5432
 
-function docker
-  if test (uname | string lower) = linux
-    command sudo docker $argv
-  else
-    command docker $argv
-  end
-end
+source $REPO_DIR/tools/docker.fish
 
 function print_usage
   echo "Manipulates PostgreSQL Docker container.
@@ -88,6 +82,7 @@ function main
     case '*'
       echo "Unknown command $subcmd"
       echo "Try '--help' for help"
+      exit 1
   end
 end
 

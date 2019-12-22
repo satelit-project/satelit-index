@@ -43,6 +43,9 @@ type AniDB struct {
 
 	// URL from where to download database index files.
 	IndexURL string `yaml:"index-url"`
+
+	// How many seconds to wait before database index update.
+	UpdateInterval uint64 `yaml:"update-interval"`
 }
 
 // Returns default app configuration or error if failed to read it.

@@ -4,6 +4,7 @@ serving:
 anidb:
   dir: "anidb"
   index-url: "http://anidb.net/api/anime-titles.xml.gz"
+  update-interval: 86400
 db:
   name: {{ if .PG_DBNAME }}"{{ .PG_DBNAME }}"{{ else }}"postgres"{{ end }}
   host: {{ if .PG_HOST }}"{{ .PG_HOST }}"{{ else }}"localhost"{{ end }}

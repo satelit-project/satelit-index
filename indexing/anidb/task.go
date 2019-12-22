@@ -4,22 +4,25 @@ import (
 	"context"
 	"path/filepath"
 
+	"shitty.moe/satelit-project/satelit-index/config"
 	"shitty.moe/satelit-project/satelit-index/db"
 	"shitty.moe/satelit-project/satelit-index/logging"
+	"shitty.moe/satelit-project/satelit-index/task"
 )
 
 // A task to update database index.
 type IndexUpdateTask struct {
-	downloader   IndexDownloader
-	downloadPath string
-	db           *db.Queries
-	log          *logging.Logger
+	downloader IndexDownloader
+	cfg        config.AniDB
+	db         *db.Queries
+	log        *logging.Logger
 }
 
 // Downloads new database index and makes it available to external services.
 func (t IndexUpdateTask) Run() error {
-	t.log.Infof("downloading new index to: %v", t.downloadPath)
-	idxPath, err := t.downloader.Download(t.downloadPath)
+	downloadPath := t.cfg.Dir
+	t.log.Infof("downloading new index to: %v", downloadPath)
+	idxPath, err := t.downloader.Download(downloadPath)
 	if err != nil {
 		t.log.Errorf("index download failed: %v, err")
 		return err
@@ -46,9 +49,15 @@ func (t IndexUpdateTask) updateDB(idxPath string) (saved bool, err error) {
 
 	// there's a data race here but this is fine since
 	// db schema has ON CONFLICT DO NOTHING
-	args := db.AddIndexFileParams{
-		Name: hash,
-		Hash: hash,
-	}
-	return true, t.db.AddIndexFile(context.Background(), args)
+	return true, t.db.AddIndexFile(context.Background(), hash)
+}
+
+// MARK: TaskFactory implementation for IndexUpdateTask.
+
+func (t IndexUpdateTask) MakeTask() task.Task {
+	return t
+}
+
+func (t IndexUpdateTask) Interval() uint64 {
+	return t.cfg.UpdateInterval
 }
