@@ -44,6 +44,7 @@ function install_deps -a forced
   pushd $GOBIN
   install_gopls $forced
   install_goose $forced
+  install_delve $forced
   popd
 
   install_sqlc $forced
@@ -66,6 +67,16 @@ function install_goose -a forced
   if ! type -q goose || test -n "$forced"
     echo "Installing 'goose'" >&2
     go get -u github.com/pressly/goose/cmd/goose
+  end
+end
+
+# Installs delve debugger
+# Args:
+#   $forced - wherever to update delve if already installed
+function install_delve -a forced
+  if ! type -q dlv || test -n "$forced"
+    echo "Installing 'delve'" >&2
+    go get -u github.com/go-delve/delve/cmd/dlv
   end
 end
 

@@ -7,19 +7,22 @@ import (
 	"path/filepath"
 
 	"shitty.moe/satelit-project/satelit-index/config"
+	"shitty.moe/satelit-project/satelit-index/db"
 	"shitty.moe/satelit-project/satelit-index/logging"
 )
 
 // Server which serves anime titles index files.
 type IndexServer struct {
 	cfg *config.Config
+	q   *db.Queries
 	log *logging.Logger
 }
 
 // Creates new server instance with provided configuration and logger.
-func New(cfg *config.Config, log *logging.Logger) IndexServer {
+func New(cfg *config.Config, q *db.Queries, log *logging.Logger) IndexServer {
 	return IndexServer{
 		cfg: cfg,
+		q:   q,
 		log: log,
 	}
 }
@@ -38,8 +41,9 @@ func (s IndexServer) Run() error {
 	addr := fmt.Sprintf(":%d", port)
 	fs := http.FileServer(http.Dir(dir))
 
-	h := LogRequest(http.StripPrefix("/index/", fs), s.log.With("dir", "index"))
+	h := LogRequest(http.StripPrefix("/index/", fs), s.log)
 	http.Handle("/index/", h)
+	http.Handle("/latest/anidb/", LogRequest(s.createAniDBHandler(), s.log))
 
 	if err := http.ListenAndServe(addr, nil); err != nil {
 		s.log.Errorf("error while serving files: %v", err)
@@ -47,6 +51,14 @@ func (s IndexServer) Run() error {
 	}
 
 	return nil
+}
+
+func (s IndexServer) createAniDBHandler() http.Handler {
+	log := s.log.With("service", "anidb")
+	return latestAniDBIndexService{
+		q:   s.q,
+		log: log,
+	}
 }
 
 // Creates required directories for serving if they are not exists.

@@ -37,6 +37,6 @@ func LogRequest(h http.Handler, log *logging.Logger) http.Handler {
 			lw.statusCode = 200
 		}
 
-		log.Infof("%d\t%s\t%s\t%s", lw.statusCode, r.Method, r.RequestURI, time.Since(now))
+		log.Infof("%s\t%d\t%s\t%s\t%s", r.RemoteAddr, lw.statusCode, r.Method, r.RequestURI, time.Since(now))
 	})
 }
