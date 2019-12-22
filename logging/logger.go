@@ -13,7 +13,7 @@ type Logger struct {
 }
 
 func NewLogger() (*Logger, error) {
-	logger, err := zap.NewDevelopment()
+	logger, err := zap.NewDevelopment(zap.AddCallerSkip(3))
 	if err != nil {
 		return nil, err
 	}
@@ -32,12 +32,14 @@ func NewLogger() (*Logger, error) {
 // Adds a variadic number of fields to the logging context. The first value
 // will become a key and the second one will become a value.
 func (l *Logger) With(args ...interface{}) *Logger {
-	if !l.canSafeExec() {
-		return nil
-	}
+	var pt *Logger
+	l.safeExec(func() {
+		inner := l.inner.With(args...)
+		pt = &Logger{inner}
 
-	inner := l.inner.With(args...)
-	return &Logger{inner}
+	})
+
+	return pt
 }
 
 // Flushes all bufferred log entries.
