@@ -1,14 +1,13 @@
 package server
 
-import "shitty.moe/satelit-project/satelit-index/db"
+import (
+	"context"
+	"encoding/json"
+	"net/http"
 
-import "shitty.moe/satelit-project/satelit-index/logging"
-
-import "net/http"
-
-import "context"
-
-import "encoding/json"
+	"shitty.moe/satelit-project/satelit-index/db"
+	"shitty.moe/satelit-project/satelit-index/logging"
+)
 
 type latestAniDBIndexService struct {
 	q   *db.Queries
