@@ -51,11 +51,16 @@ func (d IndexDownloader) downloadIndex() (string, error) {
 	return filepath.Abs(filepath.Dir(tmp.Name()))
 }
 
-// Moves database index from indexPath to a destDir directory. The file will be
+// Moves database index from idxPath to a destDir directory. The file will be
 // renamed to it's MD5 hash.
-func (d IndexDownloader) moveIndex(indexPath, destDir string) (string, error) {
-	destPath := filepath.Join(destDir, filepath.Base(indexPath))
-	err := os.Rename(indexPath, destPath)
+func (d IndexDownloader) moveIndex(idxPath, destDir string) (string, error) {
+	hash, err := d.fileHash(idxPath)
+	if err != nil {
+		return "", err
+	}
+
+	destPath := filepath.Join(destDir, hash)
+	err = os.Rename(idxPath, destPath)
 	return destPath, err
 }
 
