@@ -1,0 +1,12 @@
+version = 1
+exclude_patterns = [
+  "**/*.sql",
+  "db/"
+]
+
+[[analyzers]]
+name = "go"
+enabled = true
+
+  [analyzers.meta]
+  import_path = "shitty.moe/satelit-project/satelit-index"
