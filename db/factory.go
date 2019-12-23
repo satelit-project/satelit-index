@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	_ "github.com/lib/pq"
+	_ "github.com/lib/pq" // we only need to register the driver
 	"shitty.moe/satelit-project/satelit-index/config"
 	"shitty.moe/satelit-project/satelit-index/logging"
 )
@@ -12,21 +12,21 @@ import (
 const _urlFmt = "postgres://%s:%s@%s:%d/%s?sslmode=%s"
 
 // Factory for database access classes.
-type DBFactory struct {
+type Factory struct {
 	cfg config.Database
 	log *logging.Logger
 }
 
 // Creates new factory instance with provided configuration.
-func NewFactory(cfg config.Database, log *logging.Logger) DBFactory {
-	return DBFactory{
+func NewFactory(cfg config.Database, log *logging.Logger) Factory {
+	return Factory{
 		cfg: cfg,
 		log: log,
 	}
 }
 
 // Creates and returns new object for database queries execution.
-func (f DBFactory) MakeQueries() (*Queries, error) {
+func (f Factory) MakeQueries() (*Queries, error) {
 	url := makeURL(f.cfg)
 	f.log.Infof("connecting to db: %s", url)
 

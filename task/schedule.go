@@ -22,8 +22,8 @@ func NewScheduler(log *logging.Logger) Scheduler {
 }
 
 // Adds new task for background execution.
-func (s Scheduler) Add(t TaskFactory) {
-	s.inner.Every(t.Interval()).Seconds().DoSafely(func(t TaskFactory) {
+func (s Scheduler) Add(t Factory) {
+	s.inner.Every(t.Interval()).Seconds().DoSafely(func(t Factory) {
 		s.log.Infof("running task: %s", t.ID())
 
 		task := t.MakeTask()

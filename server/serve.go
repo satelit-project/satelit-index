@@ -2,10 +2,10 @@ package server
 
 import (
 	"context"
-	"time"
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	"shitty.moe/satelit-project/satelit-index/config"
 	"shitty.moe/satelit-project/satelit-index/db"

@@ -7,7 +7,7 @@ type Task interface {
 }
 
 // A factory that can create a specific task to run in background.
-type TaskFactory interface {
+type Factory interface {
 	// Returns identificator of tasks produced by the factory.
 	ID() string
 
@@ -17,11 +17,4 @@ type TaskFactory interface {
 	// Returns interval which represents how much seconds to wait
 	// before spawning new task.
 	Interval() uint64
-}
-
-// A function that implements Task interface.
-type TaskFunc func() error
-
-func (t TaskFunc) Run() error {
-	return t()
 }

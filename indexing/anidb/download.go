@@ -63,7 +63,7 @@ func (d IndexDownloader) moveIndex(idxPath, destDir string) (string, error) {
 	destPath := filepath.Join(destDir, hash)
 	dest, err := os.Create(destPath)
 	if err != nil {
-		return  "", err
+		return "", err
 	}
 
 	src, err := os.Open(idxPath)

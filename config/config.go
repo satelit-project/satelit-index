@@ -84,7 +84,10 @@ func render(cfg []byte, data map[string]string) ([]byte, error) {
 	}
 
 	var b bytes.Buffer
-	t.Execute(&b, data)
+	err = t.Execute(&b, data)
+	if err != nil {
+		return nil, err
+	}
 
 	return b.Bytes(), nil
 }
