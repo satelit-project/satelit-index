@@ -28,6 +28,8 @@ function start_ngx
     --mount type=bind,source=$SERVE_PATH,target=/static \
     --name $CONTAINER_NAME \
     flashspys/nginx-static; or exit $status
+
+  echo "Serving Nginx at :$SERVE_PORT" >&2
 end
 
 function stop_ngx
