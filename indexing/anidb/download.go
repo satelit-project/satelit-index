@@ -17,7 +17,12 @@ type IndexDownloader struct {
 
 // Downloads database dump to a directory with provided path.
 func (d IndexDownloader) Download(path string) (string, error) {
-	filePath, err := d.downloadIndex()
+	tmp, err := ioutil.TempFile("", "anidb_index")
+	if err != nil {
+		return "", err
+	}
+
+	filePath, err := d.downloadIndex(tmp)
 	if err != nil {
 		return "", err
 	}
@@ -25,15 +30,11 @@ func (d IndexDownloader) Download(path string) (string, error) {
 	return d.moveIndex(filePath, path)
 }
 
-// Downloads database index to temporary directory.
+// Downloads database index and writes it to specified file.
 //
 // Path to the database index will be returned if it was successfully downloaded.
-func (d IndexDownloader) downloadIndex() (string, error) {
-	tmp, err := ioutil.TempFile("", "anidb_index")
-	if err != nil {
-		return "", err
-	}
-
+// Provided file will also be closed.
+func (d IndexDownloader) downloadIndex(tmp *os.File) (string, error) {
 	resp, err := http.Get(d.indexURL)
 	if err != nil {
 		return "", err
