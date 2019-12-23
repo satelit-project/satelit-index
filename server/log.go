@@ -1,29 +1,42 @@
 package server
 
 import (
-	"bytes"
 	"net/http"
-	"satelit-project/satelit-index/logging"
+	"time"
 
-	"github.com/gorilla/handlers"
-	"go.uber.org/zap"
+	"shitty.moe/satelit-project/satelit-index/logging"
 )
 
-type loggerWriter struct {
-	logFunc func(args ...interface{})
+// ResponseWriter which keeps track of response status code.
+type loggingWriter struct {
+	inner      http.ResponseWriter
+	statusCode int
 }
 
-func NewLoggingHandler(logger *zap.SugaredLogger, h http.Handler) http.Handler {
-	if logger == nil {
-		logger = logging.DefaultLogger()
-	}
-
-	writer := loggerWriter{logger.Info}
-	return handlers.LoggingHandler(&writer, h)
+func (w *loggingWriter) Header() http.Header {
+	return w.inner.Header()
 }
 
-func (l *loggerWriter) Write(p []byte) (int, error) {
-	p = bytes.TrimSpace(p)
-	l.logFunc(string(p))
-	return len(p), nil
+func (w *loggingWriter) Write(c []byte) (int, error) {
+	return w.inner.Write(c)
+}
+
+func (w *loggingWriter) WriteHeader(statusCode int) {
+	w.statusCode = statusCode
+	w.inner.WriteHeader(statusCode)
+}
+
+// Returns Handler which logs every request with provided logger.
+func LogRequest(h http.Handler, log *logging.Logger) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		now := time.Now()
+		lw := &loggingWriter{inner: w}
+		h.ServeHTTP(lw, r)
+
+		if lw.statusCode == 0 {
+			lw.statusCode = 200
+		}
+
+		log.Infof("%s\t%d\t%s\t%s\t%s", r.RemoteAddr, lw.statusCode, r.Method, r.RequestURI, time.Since(now))
+	})
 }

@@ -2,141 +2,107 @@ package config
 
 import (
 	"bytes"
-	"fmt"
-	"io"
 	"io/ioutil"
 	"os"
-	"reflect"
+	"strings"
 	"text/template"
-
-	"github.com/gobuffalo/envy"
-	"github.com/pkg/errors"
 
 	"gopkg.in/yaml.v3"
 )
 
-func init() {
-	readEnvironment()
-	readConfig("config/server.yml", &serverConfig)
-	readConfig("config/anidb.yml", &anidbConfig)
+// Application configuration.
+type Config struct {
+	Serving  Serving  `yaml:"serving"`
+	Database Database `yaml:"db"`
+	AniDB    AniDB    `yaml:"anidb"`
 }
 
-type Environment string
+// Server configuration.
+type Serving struct {
+	// Port to listen for incoming connections.
+	Port uint `yaml:"port"`
 
-const envEnvironment = "SI_ENVIRONMENT"
+	// Path to a directory to serve files from.
+	Path string `yaml:"serve-path"`
 
-const (
-	DevelopmentEnvironment Environment = "development"
-	TestEnvironment        Environment = "test"
-	ProductionEnvironment  Environment = "production"
-)
-
-var (
-	env          = DevelopmentEnvironment
-	serverConfig map[Environment]*Server
-	anidbConfig  map[Environment]*Anidb
-)
-
-type Server struct {
-	Port              int    `yaml:"port"`
-	FilesServePath    string `yaml:"files-serve-path"`
-	ArchivesServePath string `yaml:"archives-serve-path"`
-	FilesServeURL     string `yaml:"files-serve-url"`
+	// Timeout for graceful shutdown.
+	HaltTimeout uint64 `yaml:"halt-timeout"`
 }
 
-type Anidb struct {
-	RunTasksOnStartup bool   `yaml:"run-tasks-on-startup"`
-	FilesLimit        int    `yaml:"files-limit"`
-	IndexURL          string `yaml:"index-url"`
-	UpdateTime        string `yaml:"update-time"`
-	CleanupTime       string `yaml:"cleanup-time"`
+type Database struct {
+	Name    string `yaml:"name"`
+	Host    string `yaml:"host"`
+	Port    uint   `yaml:"port"`
+	User    string `yaml:"user"`
+	Passwd  string `yaml:"passwd"`
+	SSLMode string `yaml:"ssl-mode"`
 }
 
-func CurrentEnvironment() Environment {
-	return env
+// AniDB specific configuration.
+type AniDB struct {
+	// Path to a directory with AniDB index files.
+	Dir string `yaml:"dir"`
+
+	// URL from where to download database index files.
+	IndexURL string `yaml:"index-url"`
+
+	// How many seconds to wait before database index update.
+	UpdateInterval uint64 `yaml:"update-interval"`
 }
 
-func ServerConfig() Server {
-	return *serverConfig[env]
+// Returns default app configuration or error if failed to read it.
+func Default() (*Config, error) {
+	data := makeData(os.Environ())
+	return AtPath("config/default.yml", data)
 }
 
-func AnidbConfig() Anidb {
-	return *anidbConfig[env]
-}
-
-func readEnvironment() {
-	if len(envy.Get(envEnvironment, "")) == 0 {
-		return
-	}
-
-	rawEnv, err := envy.MustGet(envEnvironment)
-	assertNoError(err)
-
-	switch Environment(rawEnv) {
-	case DevelopmentEnvironment:
-		env = DevelopmentEnvironment
-	case TestEnvironment:
-		env = TestEnvironment
-	case ProductionEnvironment:
-		env = ProductionEnvironment
-	default:
-		panic(fmt.Sprintf("unknown config env: %v", rawEnv))
-	}
-}
-
-func readConfig(path string, dst interface{}) {
-	r, err := os.Open(path)
-	assertNoError(err)
-
-	config, err := parseConfig(r)
-	assertNoError(err)
-
-	err = yaml.Unmarshal(config, dst)
-	assertNoError(err)
-	assertConfigEnv(dst)
-}
-
-func parseConfig(r io.Reader) ([]byte, error) {
-	tmpl := template.New("config")
-	tmpl.Funcs(map[string]interface{}{
-		"envOr": envy.Get,
-		"env": func(s1 string) string {
-			return envy.Get(s1, "")
-		},
-	})
-
-	buf, err := ioutil.ReadAll(r)
+// Returns app configuration parsed from template with provided data.
+func AtPath(path string, data map[string]string) (*Config, error) {
+	content, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
 
-	pt, err := tmpl.Parse(string(buf))
+	content, err = render(content, data)
 	if err != nil {
-		return nil, errors.Wrap(err, "couldn't parse config template")
+		return nil, err
 	}
 
-	var bb bytes.Buffer
-	err = pt.Execute(&bb, nil)
-	return bb.Bytes(), err
+	var cfg Config
+	if err = yaml.Unmarshal(content, &cfg); err != nil {
+		return nil, err
+	}
+
+	return &cfg, nil
 }
 
-func assertConfigEnv(config interface{}) {
-	r := reflect.ValueOf(config)
-	if r.Kind() != reflect.Ptr || r.Type().Elem().Kind() != reflect.Map {
-		panic("configuration object is not a map")
+// Renders template with provided data.
+func render(cfg []byte, data map[string]string) ([]byte, error) {
+	t, err := template.New("config").Parse(string(cfg))
+	if err != nil {
+		return nil, err
 	}
 
-	for _, key := range r.Elem().MapKeys() {
-		if key.String() == string(env) {
-			return
+	var b bytes.Buffer
+	err = t.Execute(&b, data)
+	if err != nil {
+		return nil, err
+	}
+
+	return b.Bytes(), nil
+}
+
+// Maps provided environment varialbes into template data.
+func makeData(env []string) map[string]string {
+	data := make(map[string]string, 8)
+	for _, env := range env {
+		sp := strings.Split(env, "=")
+		if len(sp) != 2 {
+			continue
 		}
+
+		data[sp[0]] = sp[1]
 	}
 
-	panic(fmt.Sprintf("configuration not found for env: %v", env))
-}
-
-func assertNoError(e error) {
-	if e != nil {
-		panic(e)
-	}
+	return data
 }

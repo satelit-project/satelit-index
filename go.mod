@@ -1,32 +1,11 @@
-module satelit-project/satelit-index
+module shitty.moe/satelit-project/satelit-index
 
-go 1.12
+go 1.13
 
 require (
-	github.com/cockroachdb/apd v1.1.0 // indirect
-	github.com/cockroachdb/cockroach-go v0.0.0-20181001143604-e0a95dfd547c // indirect
-	github.com/fatih/color v1.7.0 // indirect
-	github.com/gobuffalo/envy v1.7.0
-	github.com/gobuffalo/fizz v1.9.2 // indirect
-	github.com/gobuffalo/makr v1.2.0 // indirect
-	github.com/gobuffalo/nulls v0.1.0 // indirect
-	github.com/gobuffalo/pop v4.11.3+incompatible
-	github.com/gobuffalo/validate v2.0.3+incompatible
-	github.com/gofrs/uuid v3.2.0+incompatible
-	github.com/gorilla/handlers v1.4.2
-	github.com/jackc/fake v0.0.0-20150926172116-812a484cc733 // indirect
-	github.com/jackc/pgx v3.5.0+incompatible // indirect
-	github.com/lib/pq v1.2.0 // indirect
-	github.com/mattn/go-colorable v0.1.2 // indirect
-	github.com/mattn/go-isatty v0.0.9 // indirect
-	github.com/mattn/go-sqlite3 v1.11.0 // indirect
-	github.com/pkg/errors v0.8.1
-	github.com/robfig/cron/v3 v3.0.0
-	github.com/satori/go.uuid v1.2.0 // indirect
-	github.com/shopspring/decimal v0.0.0-20180709203117-cd690d0c9e24 // indirect
-	github.com/stretchr/testify v1.4.0 // indirect
-	go.uber.org/atomic v1.4.0 // indirect
-	go.uber.org/multierr v1.1.0 // indirect
-	go.uber.org/zap v1.10.0
-	gopkg.in/yaml.v3 v3.0.0-20190709130402-674ba3eaed22
+	github.com/google/uuid v1.1.1
+	github.com/jasonlvhit/gocron v0.0.0-20191216013803-9b1e2c8fb35c
+	github.com/lib/pq v1.3.0
+	go.uber.org/zap v1.13.0
+	gopkg.in/yaml.v3 v3.0.0-20191120175047-4206685974f2
 )

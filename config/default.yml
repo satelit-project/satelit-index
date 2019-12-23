@@ -1,0 +1,15 @@
+serving:
+  port: 8080
+  serve-path: "static"
+  halt-timeout: 60
+anidb:
+  index-url: "http://anidb.net/api/anime-titles.xml.gz"
+  dir: "static/anidb"
+  update-interval: 86400
+db:
+  name: {{ if .PG_DBNAME }}"{{ .PG_DBNAME }}"{{ else }}"postgres"{{ end }}
+  host: {{ if .PG_HOST }}"{{ .PG_HOST }}"{{ else }}"localhost"{{ end }}
+  port: {{ if .PG_PORT }}{{ .PG_PORT }}{{ else }}5432{{ end }}
+  user: {{ if .PG_USER }}"{{ .PG_USER }}"{{ else }}"postgres"{{ end }}
+  passwd: {{ if .PG_PASSWD }}"{{ .PG_PASSWD }}"{{ else }}"postgres"{{ end }}
+  ssl-mode: {{ if .PG_SSLMODE }}"{{ .PG_SSLMODE }}"{{ else }}"disable"{{ end }}
