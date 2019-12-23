@@ -54,25 +54,25 @@ func (t IndexUpdateTask) updateDB(idxPath string) (saved bool, err error) {
 
 // Factory for IndexUpdateTask task.
 type IndexUpdateTaskFactory struct {
-	downloader IndexDownloader
-	cfg        config.AniDB
-	db         *db.Queries
-	log        *logging.Logger
+	Cfg config.AniDB
+	DB  *db.Queries
+	Log *logging.Logger
 }
 
 // Creates new task.
 func (t IndexUpdateTaskFactory) MakeTask() task.Task {
+	d := IndexDownloader{t.Cfg.IndexURL}
 	return IndexUpdateTask{
-		downloader: t.downloader,
-		cfg: t.cfg,
-		db: t.db,
-		log: t.log.With("id", t.ID()),
+		downloader: d,
+		cfg:        t.Cfg,
+		db:         t.DB,
+		log:        t.Log.With("id", t.ID()),
 	}
 }
 
 // Returns task scheduling interval.
 func (t IndexUpdateTaskFactory) Interval() uint64 {
-	return t.cfg.UpdateInterval
+	return t.Cfg.UpdateInterval
 }
 
 // Returns identificator of the produced task.

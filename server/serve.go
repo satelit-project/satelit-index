@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"os"
@@ -13,9 +14,10 @@ import (
 
 // Server which serves anime titles index files.
 type IndexServer struct {
-	cfg *config.Config
-	q   *db.Queries
-	log *logging.Logger
+	inner *http.Server
+	cfg   *config.Config
+	q     *db.Queries
+	log   *logging.Logger
 }
 
 // Creates new server instance with provided configuration and logger.
@@ -23,42 +25,75 @@ func New(cfg *config.Config, q *db.Queries, log *logging.Logger) IndexServer {
 	return IndexServer{
 		cfg: cfg,
 		q:   q,
-		log: log,
+		log: log.With("srv", "index"),
 	}
 }
 
 // Starts serving anime titles index files.
-func (s IndexServer) Run() error {
-	dir := s.cfg.Serving.Path
-	port := s.cfg.Serving.Port
-	s.log.Infof("serving files from %v at %d", dir, port)
-
-	if err := s.createServeDirs(); err != nil {
-		s.log.Errorf("failed to create dir %v: %v", dir, err)
-		return err
+//
+// The method is not thread-safe and should only be called once.
+func (s *IndexServer) Run() error {
+	if s.inner != nil {
+		return nil
 	}
 
+	port := s.cfg.Serving.Port
+	s.log.Infof("serving at %d", port)
+
+	mux := http.NewServeMux()
+	mux.Handle("/index/", s.makeFsHandler())
+	mux.Handle("/latest/anidb/", s.makeAniDBHandler())
+
 	addr := fmt.Sprintf(":%d", port)
-	fs := http.FileServer(http.Dir(dir))
+	s.inner = &http.Server{
+		Addr:    addr,
+		Handler: mux,
+	}
 
-	h := LogRequest(http.StripPrefix("/index/", fs), s.log)
-	http.Handle("/index/", h)
-	http.Handle("/latest/anidb/", LogRequest(s.createAniDBHandler(), s.log))
+	go func() {
+		if err := s.inner.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			s.log.Fatalf("error while serving files: %v", err)
+		}
+	}()
 
-	if err := http.ListenAndServe(addr, nil); err != nil {
-		s.log.Errorf("error while serving files: %v", err)
-		return err
+	return nil
+}
+
+// Tries to gracefully shutdown the server.
+//
+// The method is not thread-safe and should be called once.
+func (s *IndexServer) Shutdown() error {
+	if s.inner != nil {
+		ctx, cancel := context.WithTimeout(context.Background(), s.cfg.Serving.HaltTimeout)
+		defer cancel()
+
+		s.log.Infof("trying to gracefully shutdown server")
+		return s.inner.Shutdown(ctx)
 	}
 
 	return nil
 }
 
-func (s IndexServer) createAniDBHandler() http.Handler {
+// Returns new handler for serving files.
+func (s IndexServer) makeFsHandler() http.Handler {
+	dir := s.cfg.Serving.Path
+	fs := http.StripPrefix("/index/", http.FileServer(http.Dir(dir)))
+	if err := s.createServeDirs(); err != nil {
+		s.log.Fatalf("failed to create dir %v: %v", dir, err)
+	}
+
+	return LogRequest(fs, s.log)
+}
+
+// Returns new handler for getting latest anidb data.
+func (s IndexServer) makeAniDBHandler() http.Handler {
 	log := s.log.With("service", "anidb")
-	return latestAniDBIndexService{
+	h := latestAniDBIndexService{
 		q:   s.q,
 		log: log,
 	}
+
+	return LogRequest(h, s.log)
 }
 
 // Creates required directories for serving if they are not exists.

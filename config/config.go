@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 	"text/template"
+	"time"
 
 	"gopkg.in/yaml.v3"
 )
@@ -20,16 +21,19 @@ type Config struct {
 // Server configuration.
 type Serving struct {
 	// Port to listen for incoming connections.
-	Port int `yaml:"port"`
+	Port uint `yaml:"port"`
 
 	// Path to a directory to serve files from.
 	Path string `yaml:"serve-path"`
+
+	// Timeout for graceful shutdown.
+	HaltTimeout time.Duration `yaml:"halt-timeout"`
 }
 
 type Database struct {
 	Name    string `yaml:"name"`
 	Host    string `yaml:"host"`
-	Port    int    `yaml:"port"`
+	Port    uint   `yaml:"port"`
 	User    string `yaml:"user"`
 	Passwd  string `yaml:"passwd"`
 	SSLMode string `yaml:"ssl-mode"`

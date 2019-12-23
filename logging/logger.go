@@ -79,6 +79,7 @@ func (l *Logger) Errorf(template string, args ...interface{}) {
 	})
 }
 
+// Logs formatted error message and kills current process.
 func (l *Logger) Fatalf(template string, args ...interface{}) {
 	l.safeExec(func() {
 		l.inner.Fatalf(template, args...)
