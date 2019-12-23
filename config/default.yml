@@ -3,8 +3,8 @@ serving:
   serve-path: "static"
   halt-timeout: 60
 anidb:
-  dir: "anidb"
   index-url: "http://anidb.net/api/anime-titles.xml.gz"
+  dir: "static/anidb"
   update-interval: 86400
 db:
   name: {{ if .PG_DBNAME }}"{{ .PG_DBNAME }}"{{ else }}"postgres"{{ end }}

@@ -24,7 +24,7 @@ func (t IndexUpdateTask) Run() error {
 	t.log.Infof("downloading new index to: %v", downloadPath)
 	idxPath, err := t.downloader.Download(downloadPath)
 	if err != nil {
-		t.log.Errorf("index download failed: %v, err")
+		t.log.Errorf("index download failed: %v", err)
 		return err
 	}
 

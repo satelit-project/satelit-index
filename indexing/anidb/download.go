@@ -2,6 +2,7 @@ package anidb
 
 import (
 	"crypto/md5"
+	"encoding/hex"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -48,7 +49,7 @@ func (d IndexDownloader) downloadIndex() (string, error) {
 		return "", err
 	}
 
-	return filepath.Abs(filepath.Dir(tmp.Name()))
+	return tmp.Name(), nil
 }
 
 // Moves database index from idxPath to a destDir directory. The file will be
@@ -60,7 +61,17 @@ func (d IndexDownloader) moveIndex(idxPath, destDir string) (string, error) {
 	}
 
 	destPath := filepath.Join(destDir, hash)
-	err = os.Rename(idxPath, destPath)
+	dest, err := os.Create(destPath)
+	if err != nil {
+		return  "", err
+	}
+
+	src, err := os.Open(idxPath)
+	if err != nil {
+		return "", err
+	}
+
+	_, err = io.Copy(src, dest)
 	return destPath, err
 }
 
@@ -76,5 +87,5 @@ func (d IndexDownloader) fileHash(path string) (string, error) {
 		return "", err
 	}
 
-	return string(h.Sum(nil)), nil
+	return hex.EncodeToString(h.Sum(nil)), nil
 }

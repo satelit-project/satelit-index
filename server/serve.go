@@ -2,10 +2,10 @@ package server
 
 import (
 	"context"
+	"time"
 	"fmt"
 	"net/http"
 	"os"
-	"path/filepath"
 
 	"shitty.moe/satelit-project/satelit-index/config"
 	"shitty.moe/satelit-project/satelit-index/db"
@@ -64,7 +64,8 @@ func (s *IndexServer) Run() error {
 // The method is not thread-safe and should be called once.
 func (s *IndexServer) Shutdown() error {
 	if s.inner != nil {
-		ctx, cancel := context.WithTimeout(context.Background(), s.cfg.Serving.HaltTimeout)
+		timeout := time.Duration(s.cfg.Serving.HaltTimeout)
+		ctx, cancel := context.WithTimeout(context.Background(), timeout)
 		defer cancel()
 
 		s.log.Infof("trying to gracefully shutdown server")
@@ -99,7 +100,7 @@ func (s IndexServer) makeAniDBHandler() http.Handler {
 // Creates required directories for serving if they are not exists.
 func (s IndexServer) createServeDirs() error {
 	root := s.cfg.Serving.Path
-	anidb := filepath.Join(root, s.cfg.AniDB.Dir)
+	anidb := s.cfg.AniDB.Dir
 	perm := os.FileMode(0755)
 
 	if err := os.MkdirAll(root, perm); err != nil {

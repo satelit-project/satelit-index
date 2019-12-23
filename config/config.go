@@ -6,7 +6,6 @@ import (
 	"os"
 	"strings"
 	"text/template"
-	"time"
 
 	"gopkg.in/yaml.v3"
 )
@@ -27,7 +26,7 @@ type Serving struct {
 	Path string `yaml:"serve-path"`
 
 	// Timeout for graceful shutdown.
-	HaltTimeout time.Duration `yaml:"halt-timeout"`
+	HaltTimeout uint64 `yaml:"halt-timeout"`
 }
 
 type Database struct {
@@ -41,9 +40,8 @@ type Database struct {
 
 // AniDB specific configuration.
 type AniDB struct {
-	// Path to a directory with AniDB index files. The path is related
-	// to server's serving directory.
-	Dir string `yaml:"directory"`
+	// Path to a directory with AniDB index files.
+	Dir string `yaml:"dir"`
 
 	// URL from where to download database index files.
 	IndexURL string `yaml:"index-url"`
