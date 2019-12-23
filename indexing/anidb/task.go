@@ -13,7 +13,7 @@ import (
 // A task to update database index.
 type IndexUpdateTask struct {
 	downloader IndexDownloader
-	cfg        config.AniDB
+	cfg        *config.AniDB
 	db         *db.Queries
 	log        *logging.Logger
 }
@@ -54,7 +54,7 @@ func (t IndexUpdateTask) updateDB(idxPath string) (saved bool, err error) {
 
 // Factory for IndexUpdateTask task.
 type IndexUpdateTaskFactory struct {
-	Cfg config.AniDB
+	Cfg *config.AniDB
 	DB  *db.Queries
 	Log *logging.Logger
 }

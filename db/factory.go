@@ -13,12 +13,12 @@ const _urlFmt = "postgres://%s:%s@%s:%d/%s?sslmode=%s"
 
 // Factory for database access classes.
 type Factory struct {
-	cfg config.Database
+	cfg *config.Database
 	log *logging.Logger
 }
 
 // Creates new factory instance with provided configuration.
-func NewFactory(cfg config.Database, log *logging.Logger) Factory {
+func NewFactory(cfg *config.Database, log *logging.Logger) Factory {
 	return Factory{
 		cfg: cfg,
 		log: log,
@@ -39,6 +39,6 @@ func (f Factory) MakeQueries() (*Queries, error) {
 }
 
 // Returns Postgres connection URL built for given configuration.
-func makeURL(cfg config.Database) string {
+func makeURL(cfg *config.Database) string {
 	return fmt.Sprintf(_urlFmt, cfg.User, cfg.Passwd, cfg.Host, cfg.Port, cfg.Name, cfg.SSLMode)
 }

@@ -12,9 +12,9 @@ import (
 
 // Application configuration.
 type Config struct {
-	Serving  Serving  `yaml:"serving"`
-	Database Database `yaml:"db"`
-	AniDB    AniDB    `yaml:"anidb"`
+	Serving  *Serving  `yaml:"serving"`
+	Database *Database `yaml:"db"`
+	AniDB    *AniDB    `yaml:"anidb"`
 }
 
 // Server configuration.
@@ -51,29 +51,29 @@ type AniDB struct {
 }
 
 // Returns default app configuration or error if failed to read it.
-func Default() (*Config, error) {
+func Default() (Config, error) {
 	data := makeData(os.Environ())
 	return AtPath("config/default.yml", data)
 }
 
 // Returns app configuration parsed from template with provided data.
-func AtPath(path string, data map[string]string) (*Config, error) {
+func AtPath(path string, data map[string]string) (Config, error) {
+	var cfg Config
 	content, err := ioutil.ReadFile(path)
 	if err != nil {
-		return nil, err
+		return cfg, err
 	}
 
 	content, err = render(content, data)
 	if err != nil {
-		return nil, err
+		return cfg, err
 	}
 
-	var cfg Config
 	if err = yaml.Unmarshal(content, &cfg); err != nil {
-		return nil, err
+		return cfg, err
 	}
 
-	return &cfg, nil
+	return cfg, nil
 }
 
 // Renders template with provided data.
