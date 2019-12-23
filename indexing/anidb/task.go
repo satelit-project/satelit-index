@@ -52,12 +52,30 @@ func (t IndexUpdateTask) updateDB(idxPath string) (saved bool, err error) {
 	return true, t.db.AddIndexFile(context.Background(), hash)
 }
 
-// MARK: TaskFactory implementation for IndexUpdateTask.
-
-func (t IndexUpdateTask) MakeTask() task.Task {
-	return t
+// Factory for IndexUpdateTask task.
+type IndexUpdateTaskFactory struct {
+	downloader IndexDownloader
+	cfg        config.AniDB
+	db         *db.Queries
+	log        *logging.Logger
 }
 
-func (t IndexUpdateTask) Interval() uint64 {
+// Creates new task.
+func (t IndexUpdateTaskFactory) MakeTask() task.Task {
+	return IndexUpdateTask{
+		downloader: t.downloader,
+		cfg: t.cfg,
+		db: t.db,
+		log: t.log.With("id", t.ID()),
+	}
+}
+
+// Returns task scheduling interval.
+func (t IndexUpdateTaskFactory) Interval() uint64 {
 	return t.cfg.UpdateInterval
+}
+
+// Returns identificator of the produced task.
+func (t IndexUpdateTaskFactory) ID() string {
+	return "anidb-upd"
 }

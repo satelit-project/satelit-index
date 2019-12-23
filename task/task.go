@@ -8,6 +8,9 @@ type Task interface {
 
 // A factory that can create a specific task to run in background.
 type TaskFactory interface {
+	// Returns identificator of tasks produced by the factory.
+	ID() string
+
 	// Creates new task to run in background.
 	MakeTask() Task
 
