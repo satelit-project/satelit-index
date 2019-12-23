@@ -42,11 +42,12 @@ func main() {
 	log.Infof("stopping server")
 
 	if err := srv.Shutdown(); err != nil {
-		log.Fatalf("failed to shutdown server: %v", err)
+		log.Errorf("failed to shutdown server: %v", err)
+		return
 	}
 }
 
-func readConfig(log *logging.Logger) *config.Config {
+func readConfig(log *logging.Logger) config.Config {
 	cfg, err := config.Default()
 	if err != nil {
 		log.Fatalf("failed to read app configuration: %v", err)
@@ -55,7 +56,7 @@ func readConfig(log *logging.Logger) *config.Config {
 	return cfg
 }
 
-func makeQueries(cfg *config.Config, log *logging.Logger) *db.Queries {
+func makeQueries(cfg config.Config, log *logging.Logger) *db.Queries {
 	dbf := db.NewFactory(cfg.Database, log)
 	q, err := dbf.MakeQueries()
 	if err != nil {
@@ -65,7 +66,7 @@ func makeQueries(cfg *config.Config, log *logging.Logger) *db.Queries {
 	return q
 }
 
-func makeTaskScheduler(cfg *config.Config, q *db.Queries, log *logging.Logger) task.Scheduler {
+func makeTaskScheduler(cfg config.Config, q *db.Queries, log *logging.Logger) task.Scheduler {
 	sh := task.NewScheduler(log)
 
 	upd := anidb.IndexUpdateTaskFactory{

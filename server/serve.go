@@ -15,13 +15,13 @@ import (
 // Server which serves anime titles index files.
 type IndexServer struct {
 	inner *http.Server
-	cfg   *config.Config
+	cfg   config.Config
 	q     *db.Queries
 	log   *logging.Logger
 }
 
 // Creates new server instance with provided configuration and logger.
-func New(cfg *config.Config, q *db.Queries, log *logging.Logger) IndexServer {
+func New(cfg config.Config, q *db.Queries, log *logging.Logger) IndexServer {
 	return IndexServer{
 		cfg: cfg,
 		q:   q,
