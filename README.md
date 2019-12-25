@@ -8,7 +8,7 @@ Prepares index files for data import from external sources.
 - Docker
 - Fish shell
 
-All additional project dependencies can be installed via [`tools/db.fish`](tools/db.fish). See `--help` to find out how.
+All additional project dependencies can be installed via [`tools/deps.fish`](tools/deps.fish). See `--help` to find out how.
 
 ## Tools
 
