@@ -14,7 +14,7 @@ import (
 )
 
 func main() {
-	log, err := logging.NewLogger()
+	log, err := makeLogger()
 	if err != nil {
 		panic(err)
 	}
@@ -45,6 +45,19 @@ func main() {
 		log.Errorf("failed to shutdown server: %v", err)
 		return
 	}
+}
+
+func makeLogger() (*logging.Logger, error) {
+	log, err := logging.NewLogger()
+	if err != nil {
+		return nil, err
+	}
+
+	if err = log.CaptureSTDLog(); err != nil {
+		return nil, err
+	}
+
+	return log, nil
 }
 
 func readConfig(log *logging.Logger) config.Config {

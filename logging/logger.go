@@ -12,21 +12,38 @@ type Logger struct {
 	inner *zap.SugaredLogger
 }
 
+// Creates and returns new logger instance
 func NewLogger() (*Logger, error) {
-	logger, err := zap.NewDevelopment(zap.AddCallerSkip(3))
+	logger, err := makeLogger()
 	if err != nil {
 		return nil, err
+	}
+
+	return &Logger{logger.Sugar()}, nil
+}
+
+// Redirects standard logger's output to current logger instance.
+func (l *Logger) CaptureSTDLog() error {
+	if !l.canSafeExec() {
+		return nil
+	}
+
+	l.Sync()
+	logger, err := makeLogger()
+	if err != nil {
+		return err
 	}
 
 	minLevel := int8(zapcore.InfoLevel)
 	maxLevel := int8(zapcore.FatalLevel)
 	for i := minLevel; i <= maxLevel; i++ {
 		if _, err := zap.RedirectStdLogAt(logger, zapcore.Level(i)); err != nil {
-			return nil, err
+			return err
 		}
 	}
 
-	return &Logger{logger.Sugar()}, nil
+	l.inner = logger.Sugar()
+	return nil
 }
 
 // Adds a variadic number of fields to the logging context. The first value
@@ -95,4 +112,9 @@ func (l *Logger) safeExec(f func()) {
 	if l.canSafeExec() {
 		f()
 	}
+}
+
+// Creates and returns new Uber's logger instance.
+func makeLogger() (*zap.Logger, error) {
+	return zap.NewDevelopment(zap.AddCallerSkip(3))
 }
