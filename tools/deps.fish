@@ -11,27 +11,29 @@ COMMAND:
   update  updates project dependencies" >&2
 end
 
+function fatal -a msg -d "Prints error message and exits"
+  set_color red
+  printf "$msg\n" >&2
+  exit 1
+end
+
 # Checks if current system has all required dependencies
 function check_system
   if ! type -q go
-    echo "Go is not installed" >&2
-    exit 1
+    fatal "Go is not installed"
   end
 
   if ! type -q tar
-    echo "Tar is not installed" >&2
-    exit 1
+    fatal "Tar is not installed"
   end
   
   if ! type -q curl
-    echo "Curl is not installed" >&2
-    exit 1
+    fatal "Curl is not installed"
   end
 
   set gobin (go env GOBIN)
   if test -z "$gobin"
-    echo "GOBIN is not set" >&2
-    exit 1
+    fatal "GOBIN is not set"
   end
 end
 
@@ -41,7 +43,7 @@ end
 function install_deps -a forced
   set -x GO111MODULE on
 
-  pushd $GOBIN
+  pushd (go env GOBIN)
   install_gopls $forced
   install_goose $forced
   install_delve $forced
@@ -97,8 +99,7 @@ function install_sqlc -a forced
     else if test $system = darwin -a $arch = x86_64
       download_sqlc_darwin $tmpdir
     else
-      echo "'sqlc' binary is not available for your platform" >&2
-      exit 1
+      fatal "'sqlc' binary is not available for your platform"
     end
 
     mv $tmpdir/sqlc $GOBIN/sqlc
@@ -145,9 +146,7 @@ function main
     case --help -h
       print_usage
     case "*"
-      echo "Unknown command $cmd" >&2
-      echo "Try '--help' for help" >&2
-      exit 1
+      fatal "Unknown command $cmd\nTry '--help' for help"
   end
 end
 
