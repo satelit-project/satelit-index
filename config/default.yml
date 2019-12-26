@@ -13,3 +13,5 @@ db:
   user: {{ if .PG_USER }}"{{ .PG_USER }}"{{ else }}"postgres"{{ end }}
   passwd: {{ if .PG_PASSWD }}"{{ .PG_PASSWD }}"{{ else }}"postgres"{{ end }}
   ssl-mode: {{ if .PG_SSLMODE }}"{{ .PG_SSLMODE }}"{{ else }}"disable"{{ end }}
+logging:
+  profile: {{ if .ST_LOG_PROFILE }}"{{ .ST_LOG_PROFILE }}"{{ else }}"dev"{{ end }}

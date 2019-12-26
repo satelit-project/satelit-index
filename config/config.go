@@ -15,6 +15,7 @@ type Config struct {
 	Serving  *Serving  `yaml:"serving"`
 	Database *Database `yaml:"db"`
 	AniDB    *AniDB    `yaml:"anidb"`
+	Logging  *Logging  `yaml:"logging"`
 }
 
 // Server configuration.
@@ -29,6 +30,7 @@ type Serving struct {
 	HaltTimeout uint64 `yaml:"halt-timeout"`
 }
 
+// Database configuration.
 type Database struct {
 	Name    string `yaml:"name"`
 	Host    string `yaml:"host"`
@@ -48,6 +50,12 @@ type AniDB struct {
 
 	// How many seconds to wait before database index update.
 	UpdateInterval uint64 `yaml:"update-interval"`
+}
+
+// Logging configuration.
+type Logging struct {
+	// Logging profile.
+	Profile string `yaml:"profile"`
 }
 
 // Returns default app configuration or error if failed to read it.

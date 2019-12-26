@@ -76,7 +76,7 @@ func (s *IndexServer) Shutdown() error {
 }
 
 // Returns new handler for serving files.
-func (s IndexServer) makeFsHandler() http.Handler {
+func (s *IndexServer) makeFsHandler() http.Handler {
 	dir := s.cfg.Serving.Path
 	fs := http.StripPrefix("/index/", http.FileServer(http.Dir(dir)))
 	if err := s.createServeDirs(); err != nil {
@@ -87,7 +87,7 @@ func (s IndexServer) makeFsHandler() http.Handler {
 }
 
 // Returns new handler for getting latest anidb data.
-func (s IndexServer) makeAniDBHandler() http.Handler {
+func (s *IndexServer) makeAniDBHandler() http.Handler {
 	log := s.log.With("service", "anidb")
 	h := latestAniDBIndexService{
 		q:   s.q,
@@ -98,7 +98,7 @@ func (s IndexServer) makeAniDBHandler() http.Handler {
 }
 
 // Creates required directories for serving if they are not exists.
-func (s IndexServer) createServeDirs() error {
+func (s *IndexServer) createServeDirs() error {
 	root := s.cfg.Serving.Path
 	anidb := s.cfg.AniDB.Dir
 	perm := os.FileMode(0755)
