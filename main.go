@@ -25,26 +25,32 @@ func main() {
 	cfg := readConfig(log)
 	q := makeQueries(cfg, log)
 	shed := makeTaskScheduler(cfg, q, log)
-	srv := server.New(cfg, q, log)
+	srv, err := server.New(cfg, q, log)
+	if err != nil {
+		log.Fatalf("failed to start server: %v", err)
+	}
 
 	shed.Start()
 	defer shed.Stop()
 
+	go func() {
+		done := make(chan os.Signal, 1)
+		signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+		<-done
+
+		if err := srv.Shutdown(); err != nil {
+			log.Errorf("failed to shutdown server: %v", err)
+			return
+		}
+	}()
+
+	log.Infof("starting server")
 	if err = srv.Run(); err != nil {
 		log.Fatalf("error while serving files: %v", err)
 	}
 
-	log.Infof("server started")
-	done := make(chan os.Signal, 1)
-	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+	log.Infof("server stopped")
 
-	<-done
-	log.Infof("stopping server")
-
-	if err := srv.Shutdown(); err != nil {
-		log.Errorf("failed to shutdown server: %v", err)
-		return
-	}
 }
 
 func makeLogger() (*logging.Logger, error) {
