@@ -27,7 +27,8 @@ func main() {
 	shed := makeTaskScheduler(cfg, q, log)
 	srv, err := server.New(cfg, q, log)
 	if err != nil {
-		log.Fatalf("failed to start server: %v", err)
+		log.Errorf("failed to start server: %v", err)
+		return
 	}
 
 	shed.Start()
@@ -46,7 +47,8 @@ func main() {
 
 	log.Infof("starting server")
 	if err = srv.Run(); err != nil {
-		log.Fatalf("error while serving files: %v", err)
+		log.Errorf("error while serving files: %v", err)
+		return
 	}
 
 	log.Infof("server stopped")
