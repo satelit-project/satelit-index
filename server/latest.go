@@ -41,8 +41,5 @@ func (s latestAniDBIndexService) ServeHTTP(w http.ResponseWriter, r *http.Reques
 
 func (s latestAniDBIndexService) reportError(w http.ResponseWriter, err error) {
 	s.log.Errorf("failed to query db: %v", err)
-	w.WriteHeader(http.StatusInternalServerError)
-	if _, werr := w.Write([]byte(`{"error": "could not retireve data"}`)); werr != nil {
-		s.log.Errorf("failed to write error response: %v", werr)
-	}
+	http.Error(w, `{"error": "could not retireve data"}`, http.StatusInternalServerError)
 }
