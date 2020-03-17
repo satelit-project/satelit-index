@@ -1,17 +1,17 @@
 serving:
   port: 8080
-  serve-path: "static"
   halt-timeout: 60
 anidb:
   index-url: "http://anidb.net/api/anime-titles.xml.gz"
-  dir: "static/anidb"
   update-interval: 86400
+  storage-dir: "anidb"
+storage:
+  key: "{{ .DO_SPACES_KEY }}"
+  secret: "{{ .DO_SPACES_SECRET }}"
+  host: "{{ .DO_SPACES_HOST }}"
+  bucket: "{{ .DO_BUCKET }}"
+  upload-timeout: 60
 db:
-  name: {{ if .PG_DBNAME }}"{{ .PG_DBNAME }}"{{ else }}"postgres"{{ end }}
-  host: {{ if .PG_HOST }}"{{ .PG_HOST }}"{{ else }}"localhost"{{ end }}
-  port: {{ if .PG_PORT }}{{ .PG_PORT }}{{ else }}5432{{ end }}
-  user: {{ if .PG_USER }}"{{ .PG_USER }}"{{ else }}"postgres"{{ end }}
-  passwd: {{ if .PG_PASSWD }}"{{ .PG_PASSWD }}"{{ else }}"postgres"{{ end }}
-  ssl-mode: {{ if .PG_SSLMODE }}"{{ .PG_SSLMODE }}"{{ else }}"disable"{{ end }}
+  url: {{ if .PG_DB_URL }}"{{ .PG_DB_URL }}"{{ else }}"postgresql://postgres:postgres@localhost/postgres?sslmode=disable"{{ end }}
 logging:
   profile: {{ if .ST_LOG_PROFILE }}"{{ .ST_LOG_PROFILE }}"{{ else }}"dev"{{ end }}

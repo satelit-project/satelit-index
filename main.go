@@ -7,6 +7,7 @@ import (
 
 	"shitty.moe/satelit-project/satelit-index/config"
 	"shitty.moe/satelit-project/satelit-index/db"
+	"shitty.moe/satelit-project/satelit-index/indexing"
 	"shitty.moe/satelit-project/satelit-index/indexing/anidb"
 	"shitty.moe/satelit-project/satelit-index/logging"
 	"shitty.moe/satelit-project/satelit-index/server"
@@ -24,7 +25,13 @@ func main() {
 
 	cfg := readConfig(log)
 	q := makeQueries(cfg, log)
-	shed := makeTaskScheduler(cfg, q, log)
+	storage, err := makeIndexStorage(cfg, log)
+	if err != nil {
+		log.Errorf("failed to create remote storage: %v", err)
+		return
+	}
+
+	shed := makeTaskScheduler(cfg, q, storage, log)
 	srv, err := server.New(cfg, q, log)
 	if err != nil {
 		log.Errorf("failed to start server: %v", err)
@@ -52,7 +59,6 @@ func main() {
 	}
 
 	log.Infof("server stopped")
-
 }
 
 func makeLogger() (*logging.Logger, error) {
@@ -87,13 +93,18 @@ func makeQueries(cfg config.Config, log *logging.Logger) *db.Queries {
 	return q
 }
 
-func makeTaskScheduler(cfg config.Config, q *db.Queries, log *logging.Logger) task.Scheduler {
+func makeIndexStorage(cfg config.Config, log *logging.Logger) (indexing.IndexStorage, error) {
+	return indexing.NewIndexStorage(cfg.Storage, cfg.AniDB.StorageDir, log)
+}
+
+func makeTaskScheduler(cfg config.Config, q *db.Queries, storage indexing.IndexStorage, log *logging.Logger) task.Scheduler {
 	sh := task.NewScheduler(log)
 
 	upd := anidb.IndexUpdateTaskFactory{
-		Cfg: cfg.AniDB,
-		DB:  q,
-		Log: log,
+		Cfg:     cfg.AniDB,
+		DB:      anidb.Queries{Q: q},
+		Storage: storage,
+		Log:     log,
 	}
 	sh.Add(upd)
 

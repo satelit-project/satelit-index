@@ -4,8 +4,10 @@ go 1.13
 
 require (
 	github.com/google/uuid v1.1.1
-	github.com/jasonlvhit/gocron v0.0.0-20191216013803-9b1e2c8fb35c
+	github.com/jasonlvhit/gocron v0.0.0-20200316162327-7d4169cbb9c2
 	github.com/lib/pq v1.3.0
+	github.com/minio/minio-go/v6 v6.0.50
 	go.uber.org/zap v1.14.1
-	gopkg.in/yaml.v3 v3.0.0-20191120175047-4206685974f2
+	golang.org/x/tools v0.0.0-20200317043434-63da46f3035e // indirect
+	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
 )

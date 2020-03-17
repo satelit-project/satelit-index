@@ -14,6 +14,7 @@ import (
 type Config struct {
 	Serving  *Serving  `yaml:"serving"`
 	Database *Database `yaml:"db"`
+	Storage  *Storage  `yaml:"storage"`
 	AniDB    *AniDB    `yaml:"anidb"`
 	Logging  *Logging  `yaml:"logging"`
 }
@@ -23,27 +24,38 @@ type Serving struct {
 	// Port to listen for incoming connections.
 	Port uint `yaml:"port"`
 
-	// Path to a directory to serve files from.
-	Path string `yaml:"serve-path"`
-
 	// Timeout for graceful shutdown.
 	HaltTimeout uint64 `yaml:"halt-timeout"`
 }
 
+// S3 configuration for the service data storage.
+type Storage struct {
+	// Storage access key.
+	Key string `yaml:"key"`
+
+	// Storage access secret.
+	Secret string `yaml:"secret"`
+
+	// Host to store service artifacts.
+	Host string `yaml:"host"`
+
+	// S3 bucket name.
+	Bucket string `yaml:"bucket"`
+
+	// Timeout for files uploading.
+	UploadTimeout uint64 `yaml:"upload-timeout"`
+}
+
 // Database configuration.
 type Database struct {
-	Name    string `yaml:"name"`
-	Host    string `yaml:"host"`
-	Port    uint   `yaml:"port"`
-	User    string `yaml:"user"`
-	Passwd  string `yaml:"passwd"`
-	SSLMode string `yaml:"ssl-mode"`
+	// Database connection URL.
+	URL string `yaml:"url"`
 }
 
 // AniDB specific configuration.
 type AniDB struct {
-	// Path to a directory with AniDB index files.
-	Dir string `yaml:"dir"`
+	// Path to a directory with AniDB index files relative to storage path.
+	StorageDir string `yaml:"storage-dir"`
 
 	// URL from where to download database index files.
 	IndexURL string `yaml:"index-url"`
