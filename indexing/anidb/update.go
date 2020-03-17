@@ -1,7 +1,7 @@
 package anidb
 
 import (
-	"crypto/md5"
+	"crypto/sha256"
 	"encoding/hex"
 	"io"
 	"io/ioutil"
@@ -89,7 +89,7 @@ func (d IndexUpdater) fileHash(path string) (string, error) {
 		return "", err
 	}
 
-	h := md5.New()
+	h := sha256.New()
 	if _, err = io.Copy(h, f); err != nil {
 		return "", err
 	}
