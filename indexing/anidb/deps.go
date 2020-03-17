@@ -14,7 +14,13 @@ type RemoteStorage interface {
 
 // Represents AniDB database queries.
 type DBQueries interface {
+	// Returns number of index files with specified hash.
 	CountIndexFiles(ctx context.Context, hash string) (int64, error)
+	
+	// Adds new index file to database.
+	//
+	// If there's already index file in the database with the same name
+	// then nothing will be added or updated. The index file will be ignored.
 	AddIndexFile(ctx context.Context, idx IndexFile) error
 }
 
