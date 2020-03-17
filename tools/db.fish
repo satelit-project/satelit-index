@@ -39,6 +39,8 @@ end
 function start_db -a vol_path
   docker run --rm -d \
     -p 5432:5432 \
+    -e POSTGRES_PASSWORD=postgres \
+    -e POSTGRES_USER=postgres \
     --name $CONTAINER_NAME \
     --mount type=bind,source=$vol_path,target=/var/lib/postgresql/data \
     postgres; or exit $status

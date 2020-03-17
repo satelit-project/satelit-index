@@ -28,7 +28,7 @@ func New(cfg config.Config, q *db.Queries, log *logging.Logger) (*IndexServer, e
 	}
 
 	mux := http.NewServeMux()
-	mux.Handle("/anidb/", s.makeAniDBHandler("anidb/"))
+	mux.Handle("/anidb/", s.makeAniDBHandler("/anidb/"))
 
 	addr := fmt.Sprintf(":%d", cfg.Serving.Port)
 	s.inner = &http.Server{

@@ -2,8 +2,8 @@ serving:
   port: 8080
   halt-timeout: 60
 anidb:
-  index-url: "http://localhost:8081/anime.xml.gz"
-  update-interval: 10
+  index-url: "http://anidb.net/api/anime-titles.xml.gz"
+  update-interval: 86400
   storage-dir: "anidb"
 storage:
   key: "{{ .DO_SPACES_KEY }}"
