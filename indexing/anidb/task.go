@@ -37,7 +37,7 @@ func (t IndexUpdateTask) Run() error {
 }
 
 // Inserts a record about index file to database if not already exists.
-func (t IndexUpdateTask) updateDB(idx AniDBIndex) (saved bool, err error) {
+func (t IndexUpdateTask) updateDB(idx IndexFile) (saved bool, err error) {
 	count, err := t.db.CountIndexFiles(context.Background(), idx.Hash)
 	if err != nil || count > 0 {
 		return false, err

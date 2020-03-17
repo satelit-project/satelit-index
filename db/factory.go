@@ -9,14 +9,12 @@ import (
 	"shitty.moe/satelit-project/satelit-index/logging"
 )
 
-const _urlFmt = "postgres://%s:%s@%s:%d/%s?sslmode=%s"
-
 // Factory for database access classes.
 type Factory struct {
-	cfg *config.Database
-	log *logging.Logger
+	cfg  *config.Database
+	log  *logging.Logger
 	conn *Queries
-	mx *sync.Mutex
+	mx   *sync.Mutex
 }
 
 // Creates new factory instance with provided configuration.
@@ -24,7 +22,7 @@ func NewFactory(cfg *config.Database, log *logging.Logger) Factory {
 	return Factory{
 		cfg: cfg,
 		log: log,
-		mx: &sync.Mutex{},
+		mx:  &sync.Mutex{},
 	}
 }
 

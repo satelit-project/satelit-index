@@ -66,8 +66,8 @@ func (s *IndexServer) makeAniDBHandler(path string) http.Handler {
 	log := s.log.With("service", "anidb")
 	h := aniDBIndexService{
 		path: path,
-		q:   s.q,
-		log: log,
+		q:    s.q,
+		log:  log,
 	}
 
 	return LogRequest(h, s.log)

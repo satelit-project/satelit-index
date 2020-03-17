@@ -15,10 +15,10 @@ import (
 // Remote storage for anime index files.
 type IndexStorage struct {
 	// Storage configuration.
-	cfg    *config.Storage
+	cfg *config.Storage
 
 	// Name of directory where to store index files.
-	dir    string
+	dir string
 
 	// S3 client.
 	client *minio.Client

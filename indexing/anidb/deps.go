@@ -15,19 +15,19 @@ type RemoteStorage interface {
 // Represents AniDB database queries.
 type DBQueries interface {
 	CountIndexFiles(ctx context.Context, hash string) (int64, error)
-	AddIndexFile(ctx context.Context, idx AniDBIndex) error
+	AddIndexFile(ctx context.Context, idx IndexFile) error
 }
 
 // Adapter for the db.Queries object.
-type AniDBQueries struct {
+type Queries struct {
 	Q *db.Queries
 }
 
-func (q AniDBQueries) CountIndexFiles(ctx context.Context, hash string) (int64, error) {
+func (q Queries) CountIndexFiles(ctx context.Context, hash string) (int64, error) {
 	return q.Q.CountIndexFiles(ctx, hash)
 }
 
-func (q AniDBQueries) AddIndexFile(ctx context.Context, idx AniDBIndex) error {
+func (q Queries) AddIndexFile(ctx context.Context, idx IndexFile) error {
 	params := db.AddIndexFileParams{Hash: idx.Hash, Url: idx.URL}
 	return q.Q.AddIndexFile(ctx, params)
 }

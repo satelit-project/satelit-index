@@ -30,7 +30,7 @@ func main() {
 		log.Errorf("failed to create remote storage: %v", err)
 		return
 	}
-	
+
 	shed := makeTaskScheduler(cfg, q, storage, log)
 	srv, err := server.New(cfg, q, log)
 	if err != nil {
@@ -101,10 +101,10 @@ func makeTaskScheduler(cfg config.Config, q *db.Queries, storage indexing.IndexS
 	sh := task.NewScheduler(log)
 
 	upd := anidb.IndexUpdateTaskFactory{
-		Cfg: cfg.AniDB,
-		DB:  anidb.AniDBQueries{Q: q},
+		Cfg:     cfg.AniDB,
+		DB:      anidb.Queries{Q: q},
 		Storage: storage,
-		Log: log,
+		Log:     log,
 	}
 	sh.Add(upd)
 

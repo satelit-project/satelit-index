@@ -10,9 +10,9 @@ import (
 	"path/filepath"
 )
 
-type AniDBIndex struct {
+type IndexFile struct {
 	Hash string
-	URL string
+	URL  string
 }
 
 // AniDB database dump updater.
@@ -22,15 +22,15 @@ type IndexUpdater struct {
 }
 
 // Downloads and stores latest AniDB anime dump.
-func (d IndexUpdater) Update() (AniDBIndex, error) {
+func (d IndexUpdater) Update() (IndexFile, error) {
 	tmp, err := ioutil.TempFile("", "anidb_index")
 	if err != nil {
-		return AniDBIndex{}, err
+		return IndexFile{}, err
 	}
 
 	filePath, err := d.downloadIndex(tmp)
 	if err != nil {
-		return AniDBIndex{}, err
+		return IndexFile{}, err
 	}
 
 	return d.saveIndex(filePath)
@@ -60,8 +60,8 @@ func (d IndexUpdater) downloadIndex(tmp *os.File) (string, error) {
 }
 
 // Uploads index file to remote storage and returns it's info.
-func (d IndexUpdater) saveIndex(idxPath string) (AniDBIndex, error) {
-	idx := AniDBIndex{}
+func (d IndexUpdater) saveIndex(idxPath string) (IndexFile, error) {
+	idx := IndexFile{}
 	hash, err := d.fileHash(idxPath)
 	if err != nil {
 		return idx, err
@@ -73,6 +73,10 @@ func (d IndexUpdater) saveIndex(idxPath string) (AniDBIndex, error) {
 	}
 
 	url, err := d.storage.UploadFile(destPath, "application/gzip")
+	if err != nil {
+		return idx, err
+	}
+
 	idx.Hash = hash
 	idx.URL = url
 	return idx, nil

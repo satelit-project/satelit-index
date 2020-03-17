@@ -13,8 +13,8 @@ import (
 // Service for retrieving latest AniDB anime index.
 type aniDBIndexService struct {
 	path string
-	q   *db.Queries
-	log *logging.Logger
+	q    *db.Queries
+	log  *logging.Logger
 }
 
 func (s aniDBIndexService) ServeHTTP(w http.ResponseWriter, r *http.Request) {
