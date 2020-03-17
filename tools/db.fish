@@ -2,9 +2,6 @@
 
 set REPO_DIR (git rev-parse --show-toplevel)
 set CONTAINER_NAME pg-satelit-index
-set DB_NAME postgres
-set DB_PASSWD postgres
-set DB_PORT 5432
 
 source $REPO_DIR/tools/docker.fish
 
@@ -41,14 +38,13 @@ end
 # Starts new postgres container
 function start_db -a vol_path
   docker run --rm -d \
-    -p $DB_PORT:5432 \
-    -e POSTGRES_PASSWORD=$DB_PASSWD \
+    -p 5432:5432 \
     --name $CONTAINER_NAME \
     --mount type=bind,source=$vol_path,target=/var/lib/postgresql/data \
     postgres; or exit $status
 
   echo "DB started in container: $CONTAINER_NAME" >&2
-  echo "DB URL: postgresql://postgres:$DB_PASSWD@localhost:$DB_PORT/$DB_NAME"
+  echo "DB URL: postgresql://postgres:postgres@localhost/postgres"
 end
 
 # Attaches to db in container and starts `psql`

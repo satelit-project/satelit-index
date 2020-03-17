@@ -8,14 +8,19 @@ import (
 )
 
 const addIndexFile = `-- name: AddIndexFile :exec
-insert into anidb_index_files (hash)
-values ($1)
+insert into anidb_index_files (hash, url)
+values ($1, $2)
 on conflict do nothing
 `
 
+type AddIndexFileParams struct {
+	Hash string `json:"hash"`
+	Url  string `json:"url"`
+}
+
 // Adds new index file with given name and hash or does nothing if index file already exists.
-func (q *Queries) AddIndexFile(ctx context.Context, hash string) error {
-	_, err := q.db.ExecContext(ctx, addIndexFile, hash)
+func (q *Queries) AddIndexFile(ctx context.Context, arg AddIndexFileParams) error {
+	_, err := q.db.ExecContext(ctx, addIndexFile, arg.Hash, arg.Url)
 	return err
 }
 
@@ -32,8 +37,27 @@ func (q *Queries) CountIndexFiles(ctx context.Context, hash string) (int64, erro
 	return count, err
 }
 
+const indexFileByHash = `-- name: IndexFileByHash :one
+select id, hash, url, created_at, updated_at from anidb_index_files
+where hash = $1
+`
+
+// Returns index file record with specified hash.
+func (q *Queries) IndexFileByHash(ctx context.Context, hash string) (AnidbIndexFile, error) {
+	row := q.db.QueryRowContext(ctx, indexFileByHash, hash)
+	var i AnidbIndexFile
+	err := row.Scan(
+		&i.ID,
+		&i.Hash,
+		&i.Url,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const latestIndexFile = `-- name: LatestIndexFile :one
-select id, hash, created_at, updated_at from anidb_index_files
+select id, hash, url, created_at, updated_at from anidb_index_files
 order by created_at desc
 limit 1
 `
@@ -45,6 +69,7 @@ func (q *Queries) LatestIndexFile(ctx context.Context) (AnidbIndexFile, error) {
 	err := row.Scan(
 		&i.ID,
 		&i.Hash,
+		&i.Url,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

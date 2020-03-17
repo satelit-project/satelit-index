@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"os"
 	"time"
 
 	"shitty.moe/satelit-project/satelit-index/config"
@@ -29,13 +28,7 @@ func New(cfg config.Config, q *db.Queries, log *logging.Logger) (*IndexServer, e
 	}
 
 	mux := http.NewServeMux()
-	fs, err := s.makeFsHandler()
-	if err != nil {
-		return nil, err
-	}
-
-	mux.Handle("/index/", fs)
-	mux.Handle("/latest/anidb/", s.makeAniDBHandler())
+	mux.Handle("/anidb/", s.makeAniDBHandler("anidb/"))
 
 	addr := fmt.Sprintf(":%d", cfg.Serving.Port)
 	s.inner = &http.Server{
@@ -68,41 +61,14 @@ func (s *IndexServer) Shutdown() error {
 	return s.inner.Shutdown(ctx)
 }
 
-// Returns new handler for serving files.
-func (s *IndexServer) makeFsHandler() (http.Handler, error) {
-	dir := s.cfg.Serving.Path
-	fs := http.StripPrefix("/index/", http.FileServer(http.Dir(dir)))
-	if err := s.createServeDirs(); err != nil {
-		return nil, err
-	}
-
-	return LogRequest(fs, s.log), nil
-}
-
 // Returns new handler for getting latest anidb data.
-func (s *IndexServer) makeAniDBHandler() http.Handler {
+func (s *IndexServer) makeAniDBHandler(path string) http.Handler {
 	log := s.log.With("service", "anidb")
-	h := latestAniDBIndexService{
+	h := aniDBIndexService{
+		path: path,
 		q:   s.q,
 		log: log,
 	}
 
 	return LogRequest(h, s.log)
-}
-
-// Creates required directories for serving if they are not exists.
-func (s *IndexServer) createServeDirs() error {
-	root := s.cfg.Serving.Path
-	anidb := s.cfg.AniDB.Dir
-	perm := os.FileMode(0755)
-
-	if err := os.MkdirAll(root, perm); err != nil {
-		return err
-	}
-
-	if err := os.MkdirAll(anidb, perm); err != nil {
-		return err
-	}
-
-	return nil
 }

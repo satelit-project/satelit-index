@@ -4,21 +4,25 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"strings"
 
 	"shitty.moe/satelit-project/satelit-index/db"
 	"shitty.moe/satelit-project/satelit-index/logging"
 )
 
-type latestAniDBIndexService struct {
+// Service for retrieving latest AniDB anime index.
+type aniDBIndexService struct {
+	path string
 	q   *db.Queries
 	log *logging.Logger
 }
 
-func (s latestAniDBIndexService) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (s aniDBIndexService) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	switch r.Method {
 	case "GET":
-		idx, err := s.q.LatestIndexFile(context.Background())
+		tag := strings.TrimPrefix(r.URL.Path, s.path)
+		idx, err := s.fetchIndex(tag)
 		if err != nil {
 			s.reportError(w, err)
 			return
@@ -39,7 +43,21 @@ func (s latestAniDBIndexService) ServeHTTP(w http.ResponseWriter, r *http.Reques
 	}
 }
 
-func (s latestAniDBIndexService) reportError(w http.ResponseWriter, err error) {
+// Fetches AniDB index file by it's tag.
+//
+// Tag can be either `latest` to fetch latest index file or hash of index
+// file to retrieve.
+func (s aniDBIndexService) fetchIndex(tag string) (db.AnidbIndexFile, error) {
+	switch tag {
+	case "latest":
+		return s.q.LatestIndexFile(context.Background())
+
+	default:
+		return s.q.IndexFileByHash(context.Background(), tag)
+	}
+}
+
+func (s aniDBIndexService) reportError(w http.ResponseWriter, err error) {
 	s.log.Errorf("failed to query db: %v", err)
 	http.Error(w, `{"error": "could not retireve data"}`, http.StatusInternalServerError)
 }

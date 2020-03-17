@@ -10,31 +10,37 @@ import (
 	"path/filepath"
 )
 
-// AniDB database dump downloader.
-type IndexDownloader struct {
-	indexURL string
+type AniDBIndex struct {
+	Hash string
+	URL string
 }
 
-// Downloads database dump to a directory with provided path.
-func (d IndexDownloader) Download(path string) (string, error) {
+// AniDB database dump updater.
+type IndexUpdater struct {
+	indexURL string
+	storage  RemoteStorage
+}
+
+// Downloads and stores latest AniDB anime dump.
+func (d IndexUpdater) Update() (AniDBIndex, error) {
 	tmp, err := ioutil.TempFile("", "anidb_index")
 	if err != nil {
-		return "", err
+		return AniDBIndex{}, err
 	}
 
 	filePath, err := d.downloadIndex(tmp)
 	if err != nil {
-		return "", err
+		return AniDBIndex{}, err
 	}
 
-	return d.moveIndex(filePath, path)
+	return d.saveIndex(filePath)
 }
 
 // Downloads database index and writes it to specified file.
 //
 // Path to the database index will be returned if it was successfully downloaded.
 // Provided file will also be closed.
-func (d IndexDownloader) downloadIndex(tmp *os.File) (string, error) {
+func (d IndexUpdater) downloadIndex(tmp *os.File) (string, error) {
 	resp, err := http.Get(d.indexURL)
 	if err != nil {
 		return "", err
@@ -53,31 +59,27 @@ func (d IndexDownloader) downloadIndex(tmp *os.File) (string, error) {
 	return tmp.Name(), nil
 }
 
-// Moves database index from idxPath to a destDir directory. The file will be
-// renamed to it's MD5 hash.
-func (d IndexDownloader) moveIndex(idxPath, destDir string) (string, error) {
+// Uploads index file to remote storage and returns it's info.
+func (d IndexUpdater) saveIndex(idxPath string) (AniDBIndex, error) {
+	idx := AniDBIndex{}
 	hash, err := d.fileHash(idxPath)
 	if err != nil {
-		return "", err
+		return idx, err
 	}
 
-	destPath := filepath.Join(destDir, hash)
-	dest, err := os.Create(destPath)
-	if err != nil {
-		return "", err
+	destPath := filepath.Join(filepath.Dir(idxPath), hash)
+	if err := os.Rename(idxPath, destPath); err != nil {
+		return idx, err
 	}
 
-	src, err := os.Open(idxPath)
-	if err != nil {
-		return "", err
-	}
-
-	_, err = io.Copy(src, dest)
-	return destPath, err
+	url, err := d.storage.UploadFile(destPath, "application/gzip")
+	idx.Hash = hash
+	idx.URL = url
+	return idx, nil
 }
 
 // Returns MD5 hash string for a file at specified path.
-func (d IndexDownloader) fileHash(path string) (string, error) {
+func (d IndexUpdater) fileHash(path string) (string, error) {
 	f, err := os.Open(path)
 	if err != nil {
 		return "", err

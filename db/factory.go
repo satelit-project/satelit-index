@@ -2,7 +2,7 @@ package db
 
 import (
 	"database/sql"
-	"fmt"
+	"sync"
 
 	_ "github.com/lib/pq" // we only need to register the driver
 	"shitty.moe/satelit-project/satelit-index/config"
@@ -15,6 +15,8 @@ const _urlFmt = "postgres://%s:%s@%s:%d/%s?sslmode=%s"
 type Factory struct {
 	cfg *config.Database
 	log *logging.Logger
+	conn *Queries
+	mx *sync.Mutex
 }
 
 // Creates new factory instance with provided configuration.
@@ -22,12 +24,20 @@ func NewFactory(cfg *config.Database, log *logging.Logger) Factory {
 	return Factory{
 		cfg: cfg,
 		log: log,
+		mx: &sync.Mutex{},
 	}
 }
 
 // Creates and returns new object for database queries execution.
 func (f Factory) MakeQueries() (*Queries, error) {
-	url := makeURL(f.cfg)
+	f.mx.Lock()
+	defer f.mx.Unlock()
+
+	if f.conn != nil {
+		return f.conn, nil
+	}
+
+	url := f.cfg.URL
 	f.log.Infof("connecting to db: %s", url)
 
 	db, err := sql.Open("postgres", url)
@@ -35,10 +45,6 @@ func (f Factory) MakeQueries() (*Queries, error) {
 		return nil, err
 	}
 
-	return New(db), nil
-}
-
-// Returns Postgres connection URL built for given configuration.
-func makeURL(cfg *config.Database) string {
-	return fmt.Sprintf(_urlFmt, cfg.User, cfg.Passwd, cfg.Host, cfg.Port, cfg.Name, cfg.SSLMode)
+	f.conn = New(db)
+	return f.conn, nil
 }
