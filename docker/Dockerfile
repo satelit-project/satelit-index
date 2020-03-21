@@ -5,6 +5,7 @@ RUN docker/scripts/build-project.sh
 
 FROM alpine:latest
 WORKDIR /satelit-index/
+EXPOSE 8080
 COPY --from=builder /satelit-index/satelit-index.tar.gz /satelit-index/
 RUN ["tar", "-xvf", "satelit-index.tar.gz"]
 ENTRYPOINT ["/satelit-index/entry.sh"]
