@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -15,7 +16,9 @@ import (
 )
 
 func main() {
-	log, err := makeLogger()
+	cfg := readConfig()
+
+	log, err := makeLogger(cfg.Logging)
 	if err != nil {
 		panic(err)
 	}
@@ -23,7 +26,6 @@ func main() {
 		_ = log.Sync()
 	}()
 
-	cfg := readConfig(log)
 	q := makeQueries(cfg, log)
 	storage, err := makeIndexStorage(cfg, log)
 	if err != nil {
@@ -61,8 +63,8 @@ func main() {
 	log.Infof("server stopped")
 }
 
-func makeLogger() (*logging.Logger, error) {
-	log, err := logging.NewLogger()
+func makeLogger(cfg *config.Logging) (*logging.Logger, error) {
+	log, err := logging.NewLogger(cfg)
 	if err != nil {
 		return nil, err
 	}
@@ -74,10 +76,10 @@ func makeLogger() (*logging.Logger, error) {
 	return log, nil
 }
 
-func readConfig(log *logging.Logger) config.Config {
+func readConfig() config.Config {
 	cfg, err := config.Default()
 	if err != nil {
-		log.Fatalf("failed to read app configuration: %v", err)
+		panic(fmt.Sprintf("failed to read app configuration: %v", err))
 	}
 
 	return cfg

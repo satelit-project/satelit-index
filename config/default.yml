@@ -14,4 +14,4 @@ storage:
 db:
   url: {{ if .PG_DB_URL }}"{{ .PG_DB_URL }}"{{ else }}"postgresql://postgres:postgres@localhost/postgres?sslmode=disable"{{ end }}
 logging:
-  profile: {{ if .ST_LOG_PROFILE }}"{{ .ST_LOG_PROFILE }}"{{ else }}"dev"{{ end }}
+  profile: {{ if .ST_LOG }}"{{ .ST_LOG }}"{{ else }}"dev"{{ end }}
