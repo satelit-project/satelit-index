@@ -1,6 +1,6 @@
 # Docker
 
-This directory contains nessessary files to build new Docker image for
+This directory contains necessary files to build new Docker image for
 running it in production.
 
 ## Building
