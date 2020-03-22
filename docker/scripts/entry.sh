@@ -14,6 +14,27 @@ assert_env() {
   exit 1
 }
 
+wait_db() {
+  local retries=5
+  while [[ "$retries" -gt "0" ]]; do
+    set +e
+    goose postgres "$PG_DB_URL" version
+    local status="$?"
+    set -e
+
+    if [[ "$status" -eq "0" ]]; then
+      echo "Database available"
+      return
+    fi
+
+    retries=$(( retries - 1 ))
+    echo "Database is not available. Sleeping..."
+    sleep 10s
+  done
+
+  exit 1
+}
+
 main() {
   assert_env "DO_SPACES_KEY"
   assert_env "DO_SPACES_SECRET"
@@ -21,12 +42,15 @@ main() {
   assert_env "DO_BUCKET"
   assert_env "PG_DB_URL"
 
-  # run migrations
+  echo "Waiting for database"
+  wait_db
+
+  echo "Running migrations"
   ./goose -dir sql \
     postgres "$PG_DB_URL" \
     up
 
-  # run service
+  echo "Running service"
   ST_LOG=prod \
     DO_SPACES_KEY="$DO_SPACES_KEY" \
     DO_SPACES_SECRET="$DO_SPACES_SECRET" \
