@@ -5,15 +5,6 @@
 
 set -euo pipefail
 
-assert_env() {
-  if declare -p "$1" &>/dev/null; then
-    return
-  fi
-
-  echo -e "\033[0;31mVariable '""$1""'is not set.\033[0m"
-  exit 1
-}
-
 wait_db() {
   local retries=5
   while [[ "$retries" -gt "0" ]]; do
@@ -36,12 +27,6 @@ wait_db() {
 }
 
 main() {
-  assert_env "DO_SPACES_KEY"
-  assert_env "DO_SPACES_SECRET"
-  assert_env "DO_SPACES_HOST"
-  assert_env "DO_BUCKET"
-  assert_env "PG_DB_URL"
-
   echo "Waiting for database"
   wait_db
 
