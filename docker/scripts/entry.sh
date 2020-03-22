@@ -9,7 +9,7 @@ wait_db() {
   local retries=5
   while [[ "$retries" -gt "0" ]]; do
     set +e
-    goose postgres "$PG_DB_URL" version
+    ./goose postgres "$PG_DB_URL" version
     local status="$?"
     set -e
 
@@ -31,7 +31,7 @@ main() {
   wait_db
 
   echo "Running migrations"
-  ./goose -dir sql \
+  ./goose -dir migrations \
     postgres "$PG_DB_URL" \
     up
 
