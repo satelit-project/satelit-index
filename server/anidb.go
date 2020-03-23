@@ -20,7 +20,9 @@ type aniDBIndexService struct {
 func (s aniDBIndexService) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	switch r.Method {
-	case "GET":
+	case http.MethodHead:
+		w.WriteHeader(http.StatusOK)
+	case http.MethodGet:
 		tag := strings.TrimPrefix(r.URL.Path, s.path)
 		idx, err := s.fetchIndex(tag)
 		if err != nil {

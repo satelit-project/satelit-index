@@ -34,7 +34,7 @@ func NewIndexStorage(cfg *config.Storage, dir string, log *logging.Logger) (Inde
 		return IndexStorage{}, err
 	}
 
-	return IndexStorage{cfg, dir, client, log.With("index-bucket", cfg.Bucket)}, nil
+	return IndexStorage{cfg, dir, client, log.With("storage", cfg.Bucket)}, nil
 }
 
 // Uploads file at path to remote storage and returns it's URL or error if upload failed.
@@ -61,4 +61,21 @@ func (s IndexStorage) storageDir() string {
 
 func (s IndexStorage) fileURL(name string) string {
 	return path.Join(s.cfg.Host, s.storageDir(), name)
+}
+
+// Storage that does not save anything
+type NoStorage struct {
+	// Logger
+	log *logging.Logger
+}
+
+// Creates and returns new storage object.
+func NewNoStorage(log *logging.Logger) NoStorage {
+	return NoStorage{log.With("storage", "void")}
+}
+
+// Pretends that uploads file at path to remote storage and returns empty URL.
+func (s NoStorage) UploadFile(localPath, contentType string) (string, error) {
+	s.log.Infof("uploading file %s into void", localPath)
+	return "", nil
 }

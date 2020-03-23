@@ -8,4 +8,6 @@ WORKDIR /satelit-index/
 EXPOSE 8080
 COPY --from=builder /satelit-index/satelit-index.tar.gz /satelit-index/
 RUN ["tar", "-xvf", "satelit-index.tar.gz"]
+RUN ["apk", "add", "curl"]
 ENTRYPOINT ["/satelit-index/entry.sh"]
+HEALTHCHECK --start-period=10s CMD ["curl", "-s", "-I", "http://127.0.0.1:8080/anidb/"]

@@ -95,11 +95,15 @@ func makeQueries(cfg config.Config, log *logging.Logger) *db.Queries {
 	return q
 }
 
-func makeIndexStorage(cfg config.Config, log *logging.Logger) (indexing.IndexStorage, error) {
-	return indexing.NewIndexStorage(cfg.Storage, cfg.AniDB.StorageDir, log)
+func makeIndexStorage(cfg config.Config, log *logging.Logger) (anidb.RemoteStorage, error) {
+	if cfg.Storage.IsValid() {
+		return indexing.NewIndexStorage(cfg.Storage, cfg.AniDB.StorageDir, log)
+	}
+
+	return indexing.NewNoStorage(log), nil
 }
 
-func makeTaskScheduler(cfg config.Config, q *db.Queries, storage indexing.IndexStorage, log *logging.Logger) task.Scheduler {
+func makeTaskScheduler(cfg config.Config, q *db.Queries, storage anidb.RemoteStorage, log *logging.Logger) task.Scheduler {
 	sh := task.NewScheduler(log)
 
 	upd := anidb.IndexUpdateTaskFactory{

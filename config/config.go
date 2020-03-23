@@ -96,12 +96,27 @@ func AtPath(path string, data map[string]string) (Config, error) {
 	return cfg, nil
 }
 
+// Checks if storage configuration is valid and can be used.
+func (s *Storage) IsValid() bool {
+	if len(s.Key) == 0 || len(s.Secret) == 0 {
+		return false
+	}
+
+	if len(s.Host) == 0 || len(s.Bucket) == 0 {
+		return false
+	}
+
+	return true
+}
+
 // Renders template with provided data.
 func render(cfg []byte, data map[string]string) ([]byte, error) {
 	t, err := template.New("config").Parse(string(cfg))
 	if err != nil {
 		return nil, err
 	}
+
+	t.Option("missingkey=zero")
 
 	var b bytes.Buffer
 	err = t.Execute(&b, data)
@@ -117,11 +132,7 @@ func makeData(env []string) map[string]string {
 	data := make(map[string]string, 8)
 	for _, env := range env {
 		sp := strings.Split(env, "=")
-		if len(sp) != 2 {
-			continue
-		}
-
-		data[sp[0]] = sp[1]
+		data[sp[0]] = strings.Join(sp[1:], "=")
 	}
 
 	return data
