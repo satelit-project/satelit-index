@@ -34,6 +34,6 @@ func (q Queries) CountIndexFiles(ctx context.Context, hash string) (int64, error
 }
 
 func (q Queries) AddIndexFile(ctx context.Context, idx IndexFile) error {
-	params := db.AddIndexFileParams{Hash: idx.Hash, Url: idx.URL}
+	params := db.AddIndexFileParams{Hash: idx.Hash, FilePath: idx.FilePath}
 	return q.Q.AddIndexFile(ctx, params)
 }

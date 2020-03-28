@@ -11,8 +11,8 @@ import (
 )
 
 type IndexFile struct {
-	Hash string
-	URL  string
+	Hash     string
+	FilePath string
 }
 
 // AniDB database dump updater.
@@ -72,13 +72,13 @@ func (d IndexUpdater) saveIndex(idxPath string) (IndexFile, error) {
 		return idx, err
 	}
 
-	url, err := d.storage.UploadFile(destPath, "application/gzip")
+	remotePath, err := d.storage.UploadFile(destPath, "application/gzip")
 	if err != nil {
 		return idx, err
 	}
 
 	idx.Hash = hash
-	idx.URL = url
+	idx.FilePath = remotePath
 	return idx, nil
 }
 

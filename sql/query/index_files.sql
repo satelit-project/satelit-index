@@ -4,8 +4,8 @@ select count(*) from anidb_index_files
 where hash = $1;
 
 -- name: AddIndexFile :exec
--- Adds new index file with given name and hash or does nothing if index file already exists.
-insert into anidb_index_files (hash, url)
+-- Adds new index file with given hash and remote path or does nothing if index file already exists.
+insert into anidb_index_files (hash, file_path)
 values ($1, $2)
 on conflict do nothing;
 

@@ -4,7 +4,7 @@ serving:
 anidb:
   index-url: "http://anidb.net/api/anime-titles.xml.gz"
   update-interval: 86400
-  storage-dir: "anidb"
+  storage-dir: "anidb/dump"
 storage:
   key: "{{ .DO_SPACES_KEY }}"
   secret: "{{ .DO_SPACES_SECRET }}"
@@ -12,6 +12,6 @@ storage:
   bucket: "{{ .DO_BUCKET }}"
   upload-timeout: 60
 db:
-  url: {{ if .PG_DB_URL }}"{{ .PG_DB_URL }}"{{ else }}"postgresql://postgres:postgres@localhost/postgres?sslmode=disable"{{ end }}
+  url: {{ if .PG_DB_URL }}"{{ .PG_DB_URL }}"{{ else }}"postgresql://postgres:postgres@localhost/satelit_index?sslmode=disable"{{ end }}
 logging:
   profile: {{ if .ST_LOG }}"{{ .ST_LOG }}"{{ else }}"dev"{{ end }}
