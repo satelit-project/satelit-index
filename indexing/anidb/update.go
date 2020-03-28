@@ -3,11 +3,14 @@ package anidb
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
+
+	"github.com/h2non/filetype"
 )
 
 type IndexFile struct {
@@ -18,6 +21,7 @@ type IndexFile struct {
 // AniDB database dump updater.
 type IndexUpdater struct {
 	indexURL string
+	client   *http.Client
 	storage  RemoteStorage
 }
 
@@ -33,6 +37,14 @@ func (d IndexUpdater) Update() (IndexFile, error) {
 		return IndexFile{}, err
 	}
 
+	valid, err := isGzip(filePath)
+	if err != nil {
+		return IndexFile{}, err
+	}
+	if !valid {
+		return IndexFile{}, errors.New("index file is not an archive")
+	}
+
 	return d.saveIndex(filePath)
 }
 
@@ -41,7 +53,7 @@ func (d IndexUpdater) Update() (IndexFile, error) {
 // Path to the database index will be returned if it was successfully downloaded.
 // Provided file will also be closed.
 func (d IndexUpdater) downloadIndex(tmp *os.File) (string, error) {
-	resp, err := http.Get(d.indexURL)
+	resp, err := d.client.Get(d.indexURL)
 	if err != nil {
 		return "", err
 	}
@@ -95,4 +107,16 @@ func (d IndexUpdater) fileHash(path string) (string, error) {
 	}
 
 	return hex.EncodeToString(h.Sum(nil)), nil
+}
+
+func isGzip(path string) (bool, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return false, err
+	}
+
+	head := make([]byte, 262)
+	f.Read(head)
+
+	return filetype.IsArchive(head), nil
 }

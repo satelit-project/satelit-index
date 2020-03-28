@@ -58,7 +58,7 @@ type IndexUpdateTaskFactory struct {
 
 // Creates new task.
 func (t IndexUpdateTaskFactory) MakeTask() task.Task {
-	d := IndexUpdater{t.Cfg.IndexURL, t.Storage}
+	d := IndexUpdater{t.Cfg.IndexURL, NewFakeClient(), t.Storage}
 	return IndexUpdateTask{
 		updater: d,
 		cfg:     t.Cfg,
