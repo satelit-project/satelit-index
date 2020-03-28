@@ -4,6 +4,7 @@ import (
 	"context"
 	"path"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/minio/minio-go/v6"
@@ -29,7 +30,12 @@ type IndexStorage struct {
 
 // Creates and returns new storage object or error if initialization failed.
 func NewIndexStorage(cfg *config.Storage, dir string, log *logging.Logger) (IndexStorage, error) {
-	client, err := minio.New(cfg.Host, cfg.Key, cfg.Secret, true)
+	secure := true
+	if strings.HasPrefix(cfg.Host, "localhost") || strings.HasPrefix(cfg.Host, "127.0.0.1") {
+		secure = false
+	}
+
+	client, err := minio.New(cfg.Host, cfg.Key, cfg.Secret, secure)
 	if err != nil {
 		return IndexStorage{}, err
 	}
@@ -37,7 +43,7 @@ func NewIndexStorage(cfg *config.Storage, dir string, log *logging.Logger) (Inde
 	return IndexStorage{cfg, dir, client, log.With("storage", cfg.Bucket)}, nil
 }
 
-// Uploads file at path to remote storage and returns it's URL or error if upload failed.
+// Uploads file at path to remote storage and returns it's path or error if upload failed.
 func (s IndexStorage) UploadFile(localPath, contentType string) (string, error) {
 	name := filepath.Base(localPath)
 	remotePath := filepath.Join(s.storageDir(), name)
@@ -52,7 +58,7 @@ func (s IndexStorage) UploadFile(localPath, contentType string) (string, error) 
 		return "", err
 	}
 
-	return s.fileURL(name), nil
+	return remotePath, nil
 }
 
 func (s IndexStorage) storageDir() string {

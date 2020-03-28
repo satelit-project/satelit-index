@@ -7,6 +7,7 @@ create table anidb_index_files
 (
     id         uuid        default uuid_generate_v4() not null,
     hash       text                                   not null,
+    source     int                                    not null,
     file_path  text                                   not null,
     created_at timestamptz default now()              not null,
     updated_at timestamptz default now()              not null

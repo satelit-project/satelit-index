@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"shitty.moe/satelit-project/satelit-index/db"
+	"shitty.moe/satelit-project/satelit-index/indexing"
 )
 
 // Represents remote file storage.
@@ -34,6 +35,6 @@ func (q Queries) CountIndexFiles(ctx context.Context, hash string) (int64, error
 }
 
 func (q Queries) AddIndexFile(ctx context.Context, idx IndexFile) error {
-	params := db.AddIndexFileParams{Hash: idx.Hash, FilePath: idx.FilePath}
+	params := db.AddIndexFileParams{Hash: idx.Hash, Source: int32(indexing.Anidb), FilePath: idx.FilePath}
 	return q.Q.AddIndexFile(ctx, params)
 }
