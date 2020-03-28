@@ -2,7 +2,6 @@ package indexing
 
 import (
 	"context"
-	"path"
 	"path/filepath"
 	"strings"
 	"time"
@@ -63,10 +62,6 @@ func (s IndexStorage) UploadFile(localPath, contentType string) (string, error) 
 
 func (s IndexStorage) storageDir() string {
 	return s.dir
-}
-
-func (s IndexStorage) fileURL(name string) string {
-	return path.Join(s.cfg.Host, s.storageDir(), name)
 }
 
 // Storage that does not save anything
