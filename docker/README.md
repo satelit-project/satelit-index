@@ -1,11 +1,11 @@
 # Docker
 
 This directory contains necessary files to build new Docker image for
-running it in production.
+running `satelit-index` it in production.
 
 ## Building
 
-To build new version of the container run the following command:
+To build new version of the image run the following command:
 
 ``` sh
 VERSION="<version>"
