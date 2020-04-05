@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env ash
 #
 # Builds and archives project with resources
 # in a golang:alpine Docker container.
