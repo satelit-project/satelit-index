@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env ash
 #
 # Entry point for running built project
 # in an alpine Docker container.
