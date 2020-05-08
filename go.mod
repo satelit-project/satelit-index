@@ -7,7 +7,7 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/h2non/filetype v1.0.12
 	github.com/jasonlvhit/gocron v0.0.0-20200316162327-7d4169cbb9c2
-	github.com/lib/pq v1.3.0
+	github.com/lib/pq v1.5.2
 	github.com/minio/minio-go/v6 v6.0.51
 	go.uber.org/zap v1.14.1
 	golang.org/x/tools v0.0.0-20200317043434-63da46f3035e // indirect
