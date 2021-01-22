@@ -5,7 +5,7 @@ go 1.13
 require (
 	github.com/corpix/uarand v0.1.1
 	github.com/google/uuid v1.1.1
-	github.com/h2non/filetype v1.0.12
+	github.com/h2non/filetype v1.1.1
 	github.com/jasonlvhit/gocron v0.0.0-20200316162327-7d4169cbb9c2
 	github.com/lib/pq v1.3.0
 	github.com/minio/minio-go/v6 v6.0.51
